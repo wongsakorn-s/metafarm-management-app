@@ -9,6 +9,13 @@ const statusMap: Record<string, "default" | "secondary" | "destructive" | "outli
   Empty: "outline",
 };
 
+const statusLabelMap: Record<string, string> = {
+  Strong: "แข็งแรง",
+  Normal: "ปกติ",
+  Weak: "อ่อนแอ",
+  Empty: "ว่าง",
+};
+
 export function StatusBadge({ status }: { status: HiveStatus }) {
-  return <Badge variant={statusMap[status] ?? "outline"}>{status}</Badge>;
+  return <Badge variant={statusMap[status] ?? "outline"}>{statusLabelMap[status] ?? status}</Badge>;
 }

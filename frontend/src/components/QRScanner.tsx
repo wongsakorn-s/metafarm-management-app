@@ -14,8 +14,8 @@ export default function QRScanner({ onScan, onClose }: Props) {
     <div className="fixed inset-0 z-[9999] flex flex-col overflow-hidden bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.18),transparent_28%),rgba(3,2,2,0.995)] text-white">
       <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-5">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">Scanner</p>
-          <h2 className="mt-2 text-2xl font-semibold">Scan hive QR code</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">สแกนเนอร์</p>
+          <h2 className="mt-2 text-2xl font-semibold">สแกน QR ของรังผึ้ง</h2>
         </div>
         <Button
           variant="outline"

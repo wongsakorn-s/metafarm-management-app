@@ -5,9 +5,9 @@ import logo from "@/assets/logo2.png";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/hives", label: "Hives", icon: Bug },
-  { to: "/print-qr", label: "Labels", icon: QrCode },
+  { to: "/", label: "ภาพรวม", icon: LayoutDashboard },
+  { to: "/hives", label: "รังผึ้ง", icon: Bug },
+  { to: "/print-qr", label: "ป้าย QR", icon: QrCode },
 ];
 
 export default function AppShell() {
@@ -19,7 +19,7 @@ export default function AppShell() {
             to="/"
             className="flex items-center rounded-full px-1 py-1 transition hover:bg-white/20 md:bg-white/85 md:px-2 md:py-2 md:shadow-sm md:hover:bg-white"
           >
-            <img src={logo} alt="MetaFarm Logo" className="h-12 w-auto md:h-12" />
+            <img src={logo} alt="โลโก้ MetaFarm" className="h-12 w-auto md:h-12" />
           </Link>
 
           <nav className="hidden items-center gap-2 md:flex">

@@ -26,23 +26,23 @@ interface WeatherData {
 
 const statCards = (stats: DashboardStats) => [
   {
-    label: "ACTIVE HIVES",
+    label: "รังทั้งหมด",
     value: stats.total_hives,
-    suffix: "colonies",
+    suffix: "รัง",
     icon: Bug,
     className: "",
   },
   {
-    label: "HONEY YIELD",
+    label: "ผลผลิตน้ำผึ้ง",
     value: stats.total_honey_ml,
-    suffix: "ml tracked",
+    suffix: "มล.",
     icon: Droplets,
     className: "",
   },
   {
-    label: "STRONG HIVES",
+    label: "รังแข็งแรง",
     value: stats.status_summary?.Strong ?? 0,
-    suffix: "ready",
+    suffix: "รัง",
     icon: Leaf,
     className: "col-span-2 md:col-span-1",
   },
@@ -118,7 +118,7 @@ export default function Dashboard() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-[11px] uppercase tracking-[0.22em] text-stone-300 md:text-xs md:tracking-[0.28em]">
-                        {weather.location_name || "Farm Zone"}
+                        {weather.location_name || "พื้นที่ฟาร์ม"}
                       </p>
                       <p className="mt-2 text-xl font-semibold capitalize md:text-2xl">{weather.description}</p>
                     </div>
@@ -133,14 +133,14 @@ export default function Dashboard() {
                   <div className="rounded-[1.25rem] bg-white p-3.5 shadow-sm md:rounded-[1.5rem] md:p-4">
                     <div className="flex items-center gap-2 text-sm font-semibold text-stone-700">
                       <Thermometer className="h-4 w-4 text-orange-500" />
-                      Temperature
+                      อุณหภูมิ
                     </div>
                     <p className="mt-3 text-xl font-semibold text-stone-900 md:text-2xl">{weather.temp_c.toFixed(1)}°C</p>
                   </div>
                   <div className="rounded-[1.25rem] bg-white p-3.5 shadow-sm md:rounded-[1.5rem] md:p-4">
                     <div className="flex items-center gap-2 text-sm font-semibold text-stone-700">
                       <Wind className="h-4 w-4 text-lime-600" />
-                      Humidity
+                      ความชื้น
                     </div>
                     <p className="mt-3 text-xl font-semibold text-stone-900 md:text-2xl">{weather.humidity}%</p>
                   </div>
@@ -167,7 +167,7 @@ export default function Dashboard() {
                 className="flex items-center justify-between rounded-[1.25rem] border border-amber-100 bg-amber-50/60 px-4 py-3.5 md:rounded-[1.35rem] md:py-4"
               >
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500 md:tracking-[0.24em]">
-                  {status}
+                  {status === "Strong" ? "แข็งแรง" : status === "Normal" ? "ปกติ" : status === "Weak" ? "อ่อนแอ" : status === "Empty" ? "ว่าง" : status}
                 </p>
                 <p className="text-2xl font-semibold text-stone-900 md:text-3xl">{count}</p>
               </div>
@@ -193,8 +193,8 @@ export default function Dashboard() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-base font-semibold text-amber-700 md:text-lg">{harvest.honey} ml</p>
-                    <p className="text-xs text-stone-500">{harvest.propolis} g propolis</p>
+                    <p className="text-base font-semibold text-amber-700 md:text-lg">{harvest.honey} มล.</p>
+                    <p className="text-xs text-stone-500">{harvest.propolis} กรัม โพรโพลิส</p>
                   </div>
                 </div>
               ))

@@ -27,11 +27,11 @@ export default function QRPrint() {
       <section className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <Button variant="ghost" className="pl-0" onClick={() => navigate("/hives")}>
           <ArrowLeft className="h-4 w-4" />
-          Back to hives
+          กลับไปหน้ารัง
         </Button>
         <Button onClick={() => window.print()}>
           <Printer className="h-4 w-4" />
-          Print labels
+          พิมพ์ป้าย
         </Button>
       </section>
 
@@ -41,9 +41,9 @@ export default function QRPrint() {
       >
         <CardHeader className="print:hidden">
           <CardDescription className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-700">
-            QR station
+            สถานี QR
           </CardDescription>
-          <CardTitle>Hive identity labels</CardTitle>
+          <CardTitle>ป้ายรหัสประจำรัง</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 print:space-y-0 print:p-0">
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 print:grid-cols-3 print:gap-2">
@@ -80,14 +80,14 @@ export default function QRPrint() {
 
           {hives.length === 0 && (
             <div className="rounded-[1.75rem] border border-dashed border-stone-300 bg-white/70 p-10 text-center text-sm text-stone-500">
-              No hives found to generate QR codes.
+              ไม่พบข้อมูลรังสำหรับสร้าง QR
             </div>
           )}
 
           <div className="rounded-[1.75rem] bg-sky-50 p-6 text-sm text-sky-900 print:hidden">
-            <p className="font-semibold">Printing tips</p>
+            <p className="font-semibold">คำแนะนำการพิมพ์</p>
             <ul className="mt-3 list-disc space-y-1 pl-5">
-              <li>ใช้กระดาษ A4 สติกเกอร์หรือกระดาษแข็งเพื่อให้แปะกับรังได้ง่าย</li>
+              <li>ใช้กระดาษ A4 แบบสติกเกอร์หรือกระดาษแข็งเพื่อให้นำไปติดรังได้ง่าย</li>
               <li>เปิด Background Graphics หากโลโก้ตรงกลางจางเกินไป</li>
               <li>ขนาดที่ตั้งไว้เน้นให้สแกนได้ง่ายแม้อยู่กลางแจ้ง</li>
             </ul>
