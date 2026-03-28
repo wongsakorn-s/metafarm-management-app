@@ -11,7 +11,7 @@ interface Props {
 
 export default function QRScanner({ onScan, onClose }: Props) {
   const scannerContent = (
-    <div className="fixed inset-0 z-[9999] flex flex-col overflow-hidden bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.35),transparent_35%),rgba(12,10,9,0.96)] text-white">
+    <div className="fixed inset-0 z-[9999] flex flex-col overflow-hidden bg-[radial-gradient(circle_at_top,rgba(245,158,11,0.18),transparent_28%),rgba(3,2,2,0.995)] text-white">
       <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-5">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">Scanner</p>
@@ -38,14 +38,14 @@ export default function QRScanner({ onScan, onClose }: Props) {
         />
 
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <div className="absolute inset-0 bg-black/35" />
-          <div className="relative h-72 w-72 max-w-[80vw] rounded-[2rem] border border-amber-300/70 shadow-[0_0_0_999px_rgba(0,0,0,0.5)]">
+          <div className="absolute inset-0 bg-black/55" />
+          <div className="relative h-72 w-72 max-w-[80vw] rounded-[2rem] border border-amber-300/70 shadow-[0_0_0_999px_rgba(0,0,0,0.72)]">
             <div className="absolute inset-x-3 top-4 h-1 rounded-full bg-amber-300 shadow-[0_0_15px_rgba(253,224,71,0.85)] animate-[scan_2s_ease-in-out_infinite]" />
-            <div className="absolute left-4 top-4 rounded-full bg-black/35 p-2 text-amber-200">
+            <div className="absolute left-4 top-4 rounded-full bg-black/55 p-2 text-amber-200">
               <ScanLine className="h-5 w-5" />
             </div>
           </div>
-          <p className="relative mt-8 rounded-full bg-white/10 px-4 py-2 text-sm text-amber-50 backdrop-blur">
+          <p className="relative mt-8 rounded-full bg-black/45 px-4 py-2 text-sm text-amber-50 backdrop-blur">
             จัด QR ให้อยู่ในกรอบเพื่อเข้าสู่หน้ารังอัตโนมัติ
           </p>
         </div>
