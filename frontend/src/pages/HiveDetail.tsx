@@ -4,15 +4,8 @@ import { ArrowLeft, Camera, ClipboardList, Droplets, MapPin, Sprout } from "luci
 
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { BASE_URL, harvestService, hiveService, inspectionService } from "@/services/api";
@@ -119,8 +112,7 @@ export default function HiveDetail() {
         <Card className="overflow-hidden border-amber-100 bg-[linear-gradient(140deg,rgba(255,251,235,0.96),rgba(255,237,213,0.92),rgba(254,215,170,0.78))]">
           <CardContent className="relative p-6 md:p-8">
             <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-white/50 blur-3xl" />
-            <p className="text-xs font-semibold uppercase tracking-[0.34em] text-amber-700">Hive profile</p>
-            <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h1 className="text-4xl font-semibold text-stone-900 md:text-5xl">{hive.hive_id}</h1>
                 <p className="mt-3 text-base text-stone-700">{hive.name || "Unnamed hive"}</p>
@@ -149,10 +141,7 @@ export default function HiveDetail() {
 
         <Card className="border-stone-200">
           <CardHeader>
-            <CardDescription className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-700">
-              Quick actions
-            </CardDescription>
-            <CardTitle>บันทึกงานภาคสนาม</CardTitle>
+            <CardTitle>บันทึกข้อมูล</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3">
             <Button className="justify-start" onClick={() => setShowLogForm(true)}>
@@ -170,10 +159,7 @@ export default function HiveDetail() {
       <section className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardDescription className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-700">
-              Inspection timeline
-            </CardDescription>
-            <CardTitle>บันทึกการตรวจรัง</CardTitle>
+            <CardTitle>บันทึกการตรวจ</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {inspections.length > 0 ? (
@@ -195,13 +181,13 @@ export default function HiveDetail() {
                       </p>
                       {inspection.hive_status && <StatusBadge status={inspection.hive_status} />}
                     </div>
-                    <p className="mt-4 text-sm leading-7 text-stone-600">{inspection.notes || "No notes recorded."}</p>
+                    <p className="mt-4 text-sm leading-7 text-stone-600">{inspection.notes || "-"}</p>
                   </div>
                 </article>
               ))
             ) : (
               <div className="rounded-[1.75rem] border border-dashed border-stone-300 bg-white/70 p-8 text-center text-sm text-stone-500">
-                ยังไม่มี inspection record
+                ยังไม่มีบันทึกการตรวจ
               </div>
             )}
           </CardContent>
@@ -209,9 +195,6 @@ export default function HiveDetail() {
 
         <Card>
           <CardHeader>
-            <CardDescription className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-700">
-              Harvest history
-            </CardDescription>
             <CardTitle>ประวัติผลผลิต</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -245,7 +228,7 @@ export default function HiveDetail() {
               ))
             ) : (
               <div className="rounded-[1.75rem] border border-dashed border-stone-300 bg-white/70 p-8 text-center text-sm text-stone-500">
-                ยังไม่มีข้อมูลการเก็บผลผลิต
+                ยังไม่มีข้อมูลผลผลิต
               </div>
             )}
           </CardContent>
@@ -256,7 +239,6 @@ export default function HiveDetail() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Record harvest</DialogTitle>
-            <DialogDescription>เก็บข้อมูลน้ำผึ้งและ propolis เพื่อใช้ติดตามผลผลิตของรังนี้</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleLogSubmit} className="space-y-4">
@@ -297,7 +279,6 @@ export default function HiveDetail() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Inspection note</DialogTitle>
-            <DialogDescription>แนบสถานะ ข้อสังเกต และรูปภาพจากการตรวจรัง</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleNoteSubmit} className="space-y-4">
@@ -321,7 +302,7 @@ export default function HiveDetail() {
               <Textarea
                 value={newNote.notes}
                 onChange={(e) => setNewNote({ ...newNote, notes: e.target.value })}
-                placeholder="เช่น พบการสร้างโพรงดีขึ้น มีเกสรสะสมมากขึ้น"
+                placeholder="บันทึกสภาพรัง"
                 required
               />
             </div>

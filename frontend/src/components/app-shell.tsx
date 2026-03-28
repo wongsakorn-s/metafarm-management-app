@@ -17,13 +17,9 @@ export default function AppShell() {
         <div className="mx-auto flex max-w-6xl items-center justify-start px-4 py-2 md:justify-between md:px-6 md:py-3">
           <Link
             to="/"
-            className="flex items-center rounded-full px-1 py-1 transition hover:bg-white/20 md:gap-3 md:px-3 md:py-2 md:hover:bg-white/40 md:bg-white/85 md:shadow-sm"
+            className="flex items-center rounded-full px-1 py-1 transition hover:bg-white/20 md:bg-white/85 md:px-2 md:py-2 md:shadow-sm md:hover:bg-white"
           >
             <img src={logo} alt="MetaFarm Logo" className="h-12 w-auto md:h-12" />
-            <div className="hidden sm:block">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-amber-600">Smart Apiary</p>
-              <p className="text-sm font-semibold text-stone-800">Management</p>
-            </div>
           </Link>
 
           <nav className="hidden items-center gap-2 md:flex">

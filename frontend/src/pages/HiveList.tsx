@@ -5,15 +5,8 @@ import { useNavigate } from "react-router-dom";
 import QRScanner from "@/components/QRScanner";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { hiveService } from "@/services/api";
 
@@ -81,15 +74,7 @@ export default function HiveList() {
         <Card className="overflow-hidden border-amber-100 bg-[linear-gradient(135deg,rgba(28,25,23,0.95),rgba(120,53,15,0.9),rgba(245,158,11,0.82))] text-white">
           <CardContent className="relative p-5 md:p-8">
             <div className="pointer-events-none absolute -right-10 top-1/2 h-36 w-36 -translate-y-1/2 rounded-full bg-amber-200/20 blur-3xl md:h-48 md:w-48" />
-            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-100 md:text-xs md:tracking-[0.34em]">
-              Hive registry
-            </p>
-            <h1 className="mt-3 text-[2.35rem] font-semibold leading-[0.98] md:mt-4 md:text-5xl">
-              จัดการรังทั้งหมดจากมุมมองเดียว
-            </h1>
-            <p className="mt-3 max-w-lg text-[13px] leading-6 text-amber-50/90 md:mt-4 md:text-base md:leading-7">
-              ออกแบบให้เหมาะกับการใช้งานหน้างาน สามารถเพิ่มรังใหม่ ค้นหา และสแกน QR เพื่อเข้าหน้ารายละเอียดได้ทันที
-            </p>
+            <h1 className="mt-3 text-[2.35rem] font-semibold leading-[0.98] md:mt-4 md:text-5xl">จัดการรังทั้งหมด</h1>
 
             <div className="mt-5 flex flex-wrap gap-2.5 md:mt-8 md:gap-3">
               <Button size="sm" className="h-10 px-4 md:h-11 md:px-5" onClick={() => setShowForm(true)}>
@@ -119,10 +104,7 @@ export default function HiveList() {
 
         <Card className="border-lime-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(244,250,236,0.92))]">
           <CardHeader className="p-5 pb-4 md:p-6 md:pb-4">
-            <CardDescription className="text-xs font-semibold uppercase tracking-[0.28em] text-lime-700 md:tracking-[0.32em]">
-              Fleet overview
-            </CardDescription>
-            <CardTitle className="text-[1.9rem] leading-none md:text-2xl">จำนวนรังทั้งหมด {hives.length}</CardTitle>
+            <CardTitle className="text-[1.9rem] leading-none md:text-2xl">จำนวนรัง {hives.length}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 p-5 pt-0 md:p-6 md:pt-0">
             <div className="grid grid-cols-2 gap-3">
@@ -197,7 +179,6 @@ export default function HiveList() {
         <Card className="border-dashed border-stone-300">
           <CardContent className="p-8 text-center md:p-10">
             <p className="text-xs font-semibold uppercase tracking-[0.32em] text-stone-500">No hives found</p>
-            <p className="mt-3 text-sm text-stone-600">ลองเปลี่ยนคำค้นหรือเพิ่มรังใหม่จากปุ่มด้านบน</p>
           </CardContent>
         </Card>
       )}
@@ -206,7 +187,6 @@ export default function HiveList() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add a new hive</DialogTitle>
-            <DialogDescription>บันทึกรหัสรัง สายพันธุ์ และตำแหน่งเพื่อใช้ติดตามภายหลัง</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
