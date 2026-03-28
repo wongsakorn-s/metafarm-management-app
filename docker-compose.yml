@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: metafarm_db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - metafarm_network
+
+  backend:
+    build: ./backend
+    container_name: metafarm_backend
+    restart: always
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - ./backend/static:/app/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - metafarm_network
+
+  frontend:
+    build: ./frontend
+    container_name: metafarm_frontend
+    restart: always
+    # For development, we use dev command. For production, you'd serve build folder.
+    command: bun run dev -- --host 0.0.0.0
+    env_file:
+      - .env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - metafarm_network
+
+volumes:
+  postgres_data:
+
+networks:
+  metafarm_network:
+    driver: bridge

@@ -1,0 +1,39 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+backend/venv/
+
+# Node / Bun
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+.turbo/
+
+# Build artifacts
+*.tsbuildinfo
+*.log
+coverage/
+
+# Uploads and local app data
+backend/static/uploads/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
