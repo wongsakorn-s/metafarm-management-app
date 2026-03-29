@@ -35,9 +35,11 @@ REQUEST_DURATION = Histogram(
     ["method", "path"],
 )
 
+settings.static_dir.mkdir(parents=True, exist_ok=True)
+settings.upload_dir.mkdir(parents=True, exist_ok=True)
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    settings.upload_dir.mkdir(parents=True, exist_ok=True)
     db = next(get_db())
     try:
         ensure_bootstrap_admin(db)
