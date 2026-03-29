@@ -1,22 +1,25 @@
 # MetaFarm Management App
 
-ระบบจัดการฟาร์มชันโรงแบบ full-stack สำหรับติดตามรังผึ้ง ผลผลิต การตรวจรัง สภาพอากาศ และพิมพ์ QR สำหรับติดรัง
+ระบบจัดการฟาร์มผึ้งชันโรงแบบ full-stack สำหรับติดตามรัง ผลผลิต การตรวจรัง สภาพอากาศ และ QR label
 
 ## Tech Stack
 
 - Frontend: React + TypeScript + Vite + Tailwind CSS + Bun
-- Backend: FastAPI + SQLAlchemy
+- Backend: FastAPI + SQLAlchemy + Alembic
 - Database: PostgreSQL
-- Deployment-ready local stack: Docker Compose
+- Auth: JWT access token + HttpOnly refresh cookie
+- Deployment: Docker Compose + Nginx reverse proxy
 
 ## Features
 
-- Dashboard สำหรับดูภาพรวมฟาร์ม
-- จัดการข้อมูลรังผึ้งและสถานะรัง
-- บันทึกการเก็บผลผลิตและการตรวจรัง
-- ดูข้อมูลสภาพอากาศจาก OpenWeather
-- สแกนและพิมพ์ QR label สำหรับแต่ละรัง
-- รองรับ PWA สำหรับใช้งานบนมือถือ
+- Dashboard สรุปภาพรวมฟาร์ม
+- จัดการข้อมูลรังและสถานะรัง
+- บันทึกผลผลิตและการตรวจรังพร้อมอัปโหลดรูป
+- Weather endpoint พร้อม cache และ DB fallback
+- Login, JWT, refresh token rotation, logout
+- QR print และ QR scan
+- Health check, metrics, logging, rate limit, secure headers
+- Playwright e2e และ CI workflow
 
 ## Project Structure
 
@@ -24,33 +27,39 @@
 MetaFarm/
 |- backend/
 |- frontend/
+|- deploy/prod/
 |- docker-compose.yml
+|- docker-compose.dev.yml
+|- docker-compose.prod.yml
 |- .env.example
 ```
 
-## Environment Variables
+## Environment Setup
 
-คัดลอกไฟล์ตัวอย่างแล้วแก้ค่าตามเครื่องของคุณ
+คัดลอกไฟล์ตัวอย่าง:
 
 ```powershell
 Copy-Item .env.example .env
+Copy-Item deploy/prod/.env.production.example deploy/prod/.env.production
 ```
 
-ตัวแปรหลักที่ต้องใช้:
+ค่าหลักที่ต้องตั้ง:
 
 - `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
+- `POSTGRES_PASSWORD` หรือ `deploy/prod/secrets/postgres_password.txt`
 - `POSTGRES_DB`
 - `DATABASE_URL`
-- `VITE_API_URL`
+- `DOCKER_DATABASE_URL`
+- `ADMIN_USERNAME`
+- `ADMIN_PASSWORD`
+- `JWT_SECRET_KEY`
+- `CORS_ORIGINS`
 - `OPENWEATHER_API_KEY`
-- `FARM_LAT`
-- `FARM_LON`
 
-## Run With Docker
+## Run In Development
 
 ```powershell
-docker compose up --build
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
 
 บริการที่ได้:
@@ -60,54 +69,87 @@ docker compose up --build
 - API docs: `http://localhost:8000/docs`
 - PostgreSQL: `localhost:5433`
 
-## Run Locally
+## Run In Production Mode
 
-### Backend
+production stack ใช้ reverse proxy เท่านั้น โดย expose แค่ `80/443`
 
 ```powershell
-cd backend
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+docker compose -f docker-compose.prod.yml --env-file ./deploy/prod/.env.production up --build -d
 ```
 
-### Frontend
+ไฟล์ที่เกี่ยวข้อง:
+
+- compose: [docker-compose.prod.yml](C:/Users/wongs/OneDrive/Desktop/MetaFarm/docker-compose.prod.yml)
+- checklist: [PRODUCTION_CHECKLIST.md](C:/Users/wongs/OneDrive/Desktop/MetaFarm/deploy/prod/PRODUCTION_CHECKLIST.md)
+- reverse proxy: [reverse-proxy.conf](C:/Users/wongs/OneDrive/Desktop/MetaFarm/deploy/prod/reverse-proxy.conf)
+- certs: [README.md](C:/Users/wongs/OneDrive/Desktop/MetaFarm/deploy/prod/certs/README.md)
+
+## Monitoring
+
+endpoint ที่มี:
+
+- `GET /health/live`
+- `GET /health/ready`
+- `GET /metrics`
+
+เช็ก stack แบบเร็ว:
 
 ```powershell
-cd frontend
-bun install
-bun run dev
+./deploy/prod/scripts/check-prod.ps1
+```
+
+## Backup And Restore
+
+สำรองฐานข้อมูล:
+
+```powershell
+./deploy/prod/scripts/backup-postgres.ps1
+```
+
+กู้คืนฐานข้อมูล:
+
+```powershell
+./deploy/prod/scripts/restore-postgres.ps1 -BackupFile ./deploy/prod/backups/metafarm-YYYYMMDD-HHMMSS.sql
+```
+
+## Install Real Certificates
+
+ถ้ามี certificate จริงอยู่แล้ว สามารถคัดลอกเข้า path ที่ nginx ใช้งานได้ด้วย:
+
+```powershell
+./deploy/prod/scripts/install-certificates.ps1 `
+  -AppFullchain C:\certs\app\fullchain.pem `
+  -AppPrivkey C:\certs\app\privkey.pem `
+  -ApiFullchain C:\certs\api\fullchain.pem `
+  -ApiPrivkey C:\certs\api\privkey.pem
 ```
 
 ## Seed Sample Data
-
-หลังจาก backend และ database พร้อมแล้ว สามารถเพิ่มข้อมูลตัวอย่างได้ด้วย:
 
 ```powershell
 cd backend
 python seed_sample_data.py
 ```
 
-## Build Frontend
+## Tests
+
+Backend:
+
+```powershell
+cd backend
+python -m pytest -q
+```
+
+Frontend build:
 
 ```powershell
 cd frontend
 bun run build
 ```
 
-## Test Backend
+Frontend e2e:
 
 ```powershell
-cd backend
-pytest
-```
-
-## GitHub Setup
-
-หลังจาก `git init` และผูก remote แล้ว ให้ใช้คำสั่งนี้เพื่อ push:
-
-```powershell
-git branch -M main
-git push -u origin main
+cd frontend
+bun run test:e2e
 ```

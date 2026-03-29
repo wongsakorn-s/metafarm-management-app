@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:15-alpine
@@ -11,6 +9,12 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - metafarm_network
 
@@ -18,16 +22,30 @@ services:
     build: ./backend
     container_name: metafarm_backend
     restart: always
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     env_file:
       - .env
+    environment:
+      APP_ENV: docker
+      DATABASE_URL: ${DOCKER_DATABASE_URL:-postgresql://metafarm_user:change_me@db:5432/metafarm_db}
     volumes:
-      - ./backend:/app
       - ./backend/static:/app/static
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/health/ready')"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - metafarm_network
 
@@ -35,17 +53,27 @@ services:
     build: ./frontend
     container_name: metafarm_frontend
     restart: always
-    # For development, we use dev command. For production, you'd serve build folder.
-    command: bun run dev -- --host 0.0.0.0
     env_file:
       - .env
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     ports:
-      - "5173:5173"
+      - "5173:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1/health"
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - metafarm_network
 

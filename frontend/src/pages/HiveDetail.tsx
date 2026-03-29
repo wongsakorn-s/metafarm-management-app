@@ -5,7 +5,7 @@ import { ArrowLeft, Camera, ClipboardList, Droplets, MapPin, Sprout } from "luci
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { BASE_URL, harvestService, hiveService, inspectionService } from "@/services/api";
@@ -50,11 +50,11 @@ export default function HiveDetail() {
 
     hiveService
       .getById(hive_id)
-      .then((res) => {
-        setHive(res.data);
-        return inspectionService.getByHive(res.data.id);
+      .then((response) => {
+        setHive(response.data);
+        return inspectionService.getByHive(response.data.id);
       })
-      .then((res) => setInspections(res.data))
+      .then((response) => setInspections(response.data))
       .catch(() => navigate("/hives"));
   };
 
@@ -62,8 +62,8 @@ export default function HiveDetail() {
     loadData();
   }, [hive_id]);
 
-  const handleLogSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleLogSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!hive) return;
 
     harvestService.create(hive.id, newLog).then(() => {
@@ -73,8 +73,8 @@ export default function HiveDetail() {
     });
   };
 
-  const handleNoteSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleNoteSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!hive) return;
 
     const formData = new FormData();
@@ -105,7 +105,7 @@ export default function HiveDetail() {
     <div className="page-shell space-y-6">
       <Button variant="ghost" className="pl-0" onClick={() => navigate("/hives")}>
         <ArrowLeft className="h-4 w-4" />
-        กลับไปหน้ารัง
+        กลับไปรายการรัง
       </Button>
 
       <section className="grid gap-5 lg:grid-cols-[1.12fr_0.88fr]">
@@ -115,7 +115,7 @@ export default function HiveDetail() {
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h1 className="text-4xl font-semibold text-stone-900 md:text-5xl">{hive.hive_id}</h1>
-                <p className="mt-3 text-base text-stone-700">{hive.name || "ยังไม่ตั้งชื่อ"}</p>
+                <p className="mt-3 text-base text-stone-700">{hive.name || "ยังไม่ได้ตั้งชื่อ"}</p>
               </div>
               <StatusBadge status={hive.status} />
             </div>
@@ -144,11 +144,11 @@ export default function HiveDetail() {
             <CardTitle>บันทึกข้อมูล</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3">
-            <Button className="justify-start" onClick={() => setShowLogForm(true)}>
+            <Button className="justify-start" onClick={() => setShowLogForm(true)} data-testid="open-harvest-dialog">
               <Droplets className="h-4 w-4" />
               บันทึกผลผลิต
             </Button>
-            <Button variant="secondary" className="justify-start" onClick={() => setShowNoteForm(true)}>
+            <Button variant="secondary" className="justify-start" onClick={() => setShowNoteForm(true)} data-testid="open-inspection-dialog">
               <ClipboardList className="h-4 w-4" />
               เพิ่มบันทึกการตรวจ
             </Button>
@@ -209,14 +209,9 @@ export default function HiveDetail() {
                       <Droplets className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-base font-semibold text-stone-900">
-                        {new Date(harvest.harvest_date).toLocaleDateString()}
-                      </p>
+                      <p className="text-base font-semibold text-stone-900">{new Date(harvest.harvest_date).toLocaleDateString()}</p>
                       <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
-                        {new Date(harvest.harvest_date).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {new Date(harvest.harvest_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
                   </div>
@@ -236,30 +231,33 @@ export default function HiveDetail() {
       </section>
 
       <Dialog open={showLogForm} onOpenChange={setShowLogForm}>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogHeader>
+            <DialogDescription>บันทึกผลผลิตล่าสุดของรังนี้</DialogDescription>
             <DialogTitle>บันทึกผลผลิต</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleLogSubmit} className="space-y-4">
+          <form onSubmit={handleLogSubmit} className="space-y-4" data-testid="harvest-form">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-stone-700">น้ำผึ้ง (มล.)</label>
                 <Input
+                  data-testid="harvest-honey"
                   type="number"
                   step="0.1"
                   value={newLog.honey_yield_ml}
-                  onChange={(e) => setNewLog({ ...newLog, honey_yield_ml: Number(e.target.value) || 0 })}
+                  onChange={(event) => setNewLog({ ...newLog, honey_yield_ml: Number(event.target.value) || 0 })}
                   required
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-stone-700">โพรโพลิส (กรัม)</label>
                 <Input
+                  data-testid="harvest-propolis"
                   type="number"
                   step="0.1"
                   value={newLog.propolis_yield_g}
-                  onChange={(e) => setNewLog({ ...newLog, propolis_yield_g: Number(e.target.value) || 0 })}
+                  onChange={(event) => setNewLog({ ...newLog, propolis_yield_g: Number(event.target.value) || 0 })}
                   required
                 />
               </div>
@@ -269,25 +267,29 @@ export default function HiveDetail() {
               <Button type="button" variant="ghost" onClick={() => setShowLogForm(false)}>
                 ยกเลิก
               </Button>
-              <Button type="submit">บันทึก</Button>
+              <Button type="submit" data-testid="submit-harvest">
+                บันทึก
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
       <Dialog open={showNoteForm} onOpenChange={setShowNoteForm}>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogHeader>
+            <DialogDescription>เพิ่มบันทึกสถานะรัง หมายเหตุ และรูปภาพประกอบ</DialogDescription>
             <DialogTitle>บันทึกการตรวจ</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleNoteSubmit} className="space-y-4">
+          <form onSubmit={handleNoteSubmit} className="space-y-4" data-testid="inspection-form">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-stone-700">สถานะรัง</label>
               <select
+                data-testid="inspection-status"
                 className="flex h-11 w-full rounded-2xl border border-[hsl(var(--input))] bg-white/90 px-4 py-2 text-sm text-stone-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
                 value={newNote.status}
-                onChange={(e) => setNewNote({ ...newNote, status: e.target.value })}
+                onChange={(event) => setNewNote({ ...newNote, status: event.target.value })}
               >
                 <option value="">คงสถานะเดิม</option>
                 <option value="Strong">แข็งแรง</option>
@@ -300,8 +302,9 @@ export default function HiveDetail() {
             <div className="space-y-2">
               <label className="text-sm font-semibold text-stone-700">บันทึก</label>
               <Textarea
+                data-testid="inspection-notes"
                 value={newNote.notes}
-                onChange={(e) => setNewNote({ ...newNote, notes: e.target.value })}
+                onChange={(event) => setNewNote({ ...newNote, notes: event.target.value })}
                 placeholder="บันทึกสภาพรัง"
                 required
               />
@@ -310,9 +313,10 @@ export default function HiveDetail() {
             <div className="space-y-2">
               <label className="text-sm font-semibold text-stone-700">รูปภาพ</label>
               <Input
+                data-testid="inspection-image"
                 type="file"
                 accept="image/*"
-                onChange={(e) => setNewNote({ ...newNote, image: e.target.files?.[0] ?? null })}
+                onChange={(event) => setNewNote({ ...newNote, image: event.target.files?.[0] ?? null })}
               />
             </div>
 
@@ -320,7 +324,7 @@ export default function HiveDetail() {
               <Button type="button" variant="ghost" onClick={() => setShowNoteForm(false)}>
                 ยกเลิก
               </Button>
-              <Button type="submit">
+              <Button type="submit" data-testid="submit-inspection">
                 <Camera className="h-4 w-4" />
                 บันทึกการตรวจ
               </Button>

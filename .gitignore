@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!deploy/prod/.env.production.example
 
 # Python
 __pycache__/
@@ -31,6 +32,14 @@ coverage/
 
 # Uploads and local app data
 backend/static/uploads/
+backend/.e2e.sqlite3
+backend/tests/test_suite.sqlite3
+frontend/playwright-report/
+frontend/test-results/
+deploy/prod/secrets/*.txt
+deploy/prod/backups/*.sql
+deploy/prod/certs/**/*.pem
+deploy/prod/certs/**/*.key
 
 # OS / Editor
 .DS_Store

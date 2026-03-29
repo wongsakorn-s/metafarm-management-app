@@ -6,7 +6,7 @@ import QRScanner from "@/components/QRScanner";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { hiveService } from "@/services/api";
 
@@ -43,8 +43,8 @@ export default function HiveList() {
     loadHives();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     hiveService
       .create(newHive)
       .then(() => {
@@ -52,11 +52,11 @@ export default function HiveList() {
         setNewHive(initialHive);
         loadHives();
       })
-      .catch((err) => alert(err.response?.data?.detail || "เกิดข้อผิดพลาดในการเพิ่มรัง"));
+      .catch((error) => alert(error.response?.data?.detail || "เกิดข้อผิดพลาดในการเพิ่มรัง"));
   };
 
-  const handleDelete = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
+  const handleDelete = (id: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
     if (window.confirm("ลบรังนี้ใช่หรือไม่")) {
       hiveService.delete(id).then(loadHives);
     }
@@ -77,7 +77,7 @@ export default function HiveList() {
             <h1 className="mt-3 text-[2.35rem] font-semibold leading-[0.98] md:mt-4 md:text-5xl">จัดการรังทั้งหมด</h1>
 
             <div className="mt-5 flex flex-wrap gap-2.5 md:mt-8 md:gap-3">
-              <Button size="sm" className="h-10 px-4 md:h-11 md:px-5" onClick={() => setShowForm(true)}>
+              <Button size="sm" className="h-10 px-4 md:h-11 md:px-5" onClick={() => setShowForm(true)} data-testid="open-add-hive-dialog">
                 <Plus className="h-4 w-4" />
                 เพิ่มรัง
               </Button>
@@ -90,12 +90,7 @@ export default function HiveList() {
                 <QrCode className="h-4 w-4" />
                 สแกน QR
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-10 px-4 md:h-11 md:px-5"
-                onClick={() => navigate("/print-qr")}
-              >
+              <Button size="sm" variant="outline" className="h-10 px-4 md:h-11 md:px-5" onClick={() => navigate("/print-qr")}>
                 พิมพ์ป้าย
               </Button>
             </div>
@@ -128,7 +123,7 @@ export default function HiveList() {
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
               <Input
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(event) => setQuery(event.target.value)}
                 placeholder="ค้นหาจากรหัสรัง ชื่อ สายพันธุ์ หรือพื้นที่"
                 className="h-10 pl-11 md:h-11"
               />
@@ -149,7 +144,7 @@ export default function HiveList() {
                 <div className="min-w-0">
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-700">รหัสรัง</p>
                   <h3 className="mt-2 truncate text-2xl font-semibold text-stone-900">{hive.hive_id}</h3>
-                  <p className="mt-2 truncate text-sm text-stone-600">{hive.name || "ยังไม่ตั้งชื่อ"}</p>
+                  <p className="mt-2 truncate text-sm text-stone-600">{hive.name || "ยังไม่ได้ตั้งชื่อ"}</p>
                 </div>
                 <StatusBadge status={hive.status} />
               </div>
@@ -166,12 +161,7 @@ export default function HiveList() {
               </div>
 
               <div className="mt-4 flex justify-end md:mt-5">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => handleDelete(hive.hive_id, e)}
-                  aria-label={`ลบ ${hive.hive_id}`}
-                >
+                <Button variant="ghost" size="icon" onClick={(event) => handleDelete(hive.hive_id, event)} aria-label={`ลบ ${hive.hive_id}`}>
                   <Trash2 className="h-4 w-4 text-red-500" />
                 </Button>
               </div>
@@ -189,18 +179,20 @@ export default function HiveList() {
       )}
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogHeader>
+            <DialogDescription>กรอกข้อมูลรังเพื่อเพิ่มรายการใหม่เข้าสู่ระบบ</DialogDescription>
             <DialogTitle>เพิ่มรังใหม่</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" data-testid="add-hive-form">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-stone-700">รหัสรัง</label>
                 <Input
+                  data-testid="add-hive-id"
                   value={newHive.hive_id}
-                  onChange={(e) => setNewHive({ ...newHive, hive_id: e.target.value })}
+                  onChange={(event) => setNewHive({ ...newHive, hive_id: event.target.value })}
                   placeholder="HIVE-001"
                   required
                 />
@@ -208,24 +200,27 @@ export default function HiveList() {
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-stone-700">ชื่อรัง</label>
                 <Input
+                  data-testid="add-hive-name"
                   value={newHive.name}
-                  onChange={(e) => setNewHive({ ...newHive, name: e.target.value })}
+                  onChange={(event) => setNewHive({ ...newHive, name: event.target.value })}
                   placeholder="สวนด้านเหนือ"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-stone-700">สายพันธุ์</label>
                 <Input
+                  data-testid="add-hive-species"
                   value={newHive.species}
-                  onChange={(e) => setNewHive({ ...newHive, species: e.target.value })}
+                  onChange={(event) => setNewHive({ ...newHive, species: event.target.value })}
                   placeholder="ชันโรงขนเงิน"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-stone-700">ตำแหน่ง</label>
                 <Input
+                  data-testid="add-hive-location"
                   value={newHive.location}
-                  onChange={(e) => setNewHive({ ...newHive, location: e.target.value })}
+                  onChange={(event) => setNewHive({ ...newHive, location: event.target.value })}
                   placeholder="โซน B"
                 />
               </div>
@@ -234,9 +229,10 @@ export default function HiveList() {
             <div className="space-y-2">
               <label className="text-sm font-semibold text-stone-700">สถานะ</label>
               <select
+                data-testid="add-hive-status"
                 className="flex h-11 w-full rounded-2xl border border-[hsl(var(--input))] bg-white/90 px-4 py-2 text-sm text-stone-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
                 value={newHive.status}
-                onChange={(e) => setNewHive({ ...newHive, status: e.target.value })}
+                onChange={(event) => setNewHive({ ...newHive, status: event.target.value })}
               >
                 <option value="Strong">แข็งแรง</option>
                 <option value="Normal">ปกติ</option>
@@ -249,7 +245,9 @@ export default function HiveList() {
               <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
                 ยกเลิก
               </Button>
-              <Button type="submit">บันทึกรัง</Button>
+              <Button type="submit" data-testid="submit-add-hive">
+                บันทึกรัง
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

@@ -1,8 +1,10 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
-import { Bug, LayoutDashboard, QrCode } from "lucide-react";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Bug, LayoutDashboard, LogOut, QrCode } from "lucide-react";
 
 import logo from "@/assets/logo2.png";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { authService } from "@/services/api";
 
 const navItems = [
   { to: "/", label: "ภาพรวม", icon: LayoutDashboard },
@@ -11,6 +13,13 @@ const navItems = [
 ];
 
 export default function AppShell() {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await authService.logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <div className="min-h-screen pb-20 md:pb-0">
       <header className="sticky top-0 z-40 border-b border-white/50 bg-[linear-gradient(180deg,rgba(255,251,235,0.96),rgba(255,251,235,0.82))] backdrop-blur-xl print:hidden">
@@ -37,6 +46,10 @@ export default function AppShell() {
                 {item.label}
               </NavLink>
             ))}
+            <Button type="button" variant="ghost" className="rounded-full px-4" onClick={handleLogout} data-testid="logout-button">
+              <LogOut className="h-4 w-4" />
+              ออกจากระบบ
+            </Button>
           </nav>
         </div>
       </header>

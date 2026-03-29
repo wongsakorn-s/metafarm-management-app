@@ -8,6 +8,19 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  build: {
+    sourcemap: false,
+    chunkSizeWarningLimit: 550,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-slot', 'lucide-react'],
+          qr: ['qrcode.react', 'react-qr-reader'],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
