@@ -35,6 +35,18 @@ interface Inspection {
   image_url?: string;
 }
 
+function resolveInspectionImageUrl(imageUrl?: string): string | undefined {
+  if (!imageUrl) {
+    return undefined;
+  }
+
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    return imageUrl;
+  }
+
+  return `${BASE_URL}${imageUrl}`;
+}
+
 export default function HiveDetail() {
   const { hive_id } = useParams<{ hive_id: string }>();
   const navigate = useNavigate();
@@ -165,10 +177,10 @@ export default function HiveDetail() {
             {inspections.length > 0 ? (
               inspections.map((inspection) => (
                 <article key={inspection.id} className="overflow-hidden rounded-[1.75rem] border border-stone-200 bg-white/90">
-                  {inspection.image_url && (
+                  {resolveInspectionImageUrl(inspection.image_url) && (
                     <div className="aspect-video overflow-hidden bg-stone-100">
                       <img
-                        src={`${BASE_URL}${inspection.image_url}`}
+                        src={resolveInspectionImageUrl(inspection.image_url)}
                         alt="ภาพการตรวจ"
                         className="h-full w-full object-cover transition duration-300 hover:scale-[1.03]"
                       />
