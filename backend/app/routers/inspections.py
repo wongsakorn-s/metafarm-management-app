@@ -1,4 +1,5 @@
 import logging
+from io import BytesIO
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from sqlalchemy.orm import Session
@@ -8,6 +9,7 @@ from PIL import Image
 from .. import models, schemas, database
 from ..auth import require_write_access
 from ..settings import settings
+from ..storage import save_local_object, upload_supabase_object
 
 router = APIRouter(
     prefix="/api/inspections",
@@ -30,39 +32,38 @@ def validate_uploaded_image(image_file: UploadFile) -> None:
     if size > MAX_IMAGE_SIZE_BYTES:
         raise HTTPException(status_code=400, detail="Image must not exceed 5 MB")
 
-def process_and_save_image(image_file: UploadFile, hive_id: str) -> str:
-    """Resizes, compresses, and saves an image to a hive-specific folder."""
-    # Create hive-specific directory
-    hive_dir = BASE_UPLOAD_DIR / hive_id
-    hive_dir.mkdir(parents=True, exist_ok=True)
+def build_processed_image(image_file: UploadFile) -> bytes:
+    """Resize and compress image to JPEG bytes."""
+    output = BytesIO()
 
-    # Generate unique filename (convert to .jpg for efficiency)
     file_name = f"{uuid.uuid4()}.jpg"
-    file_path = hive_dir / file_name
-
-    # Open image using Pillow
     img = Image.open(image_file.file)
-    
-    # Fix orientation based on EXIF (crucial for mobile photos)
+
     try:
         from PIL import ImageOps
         img = ImageOps.exif_transpose(img)
     except:
         pass
 
-    # Convert to RGB if necessary (e.g., from PNG with transparency)
     if img.mode in ("RGBA", "P"):
         img = img.convert("RGB")
 
-    # Resize if too large (max 1200px width/height)
     max_size = (1200, 1200)
     img.thumbnail(max_size, Image.LANCZOS)
+    img.save(output, "JPEG", quality=80, optimize=True)
+    image_file.file.seek(0)
+    return output.getvalue()
 
-    # Save with compression (80% quality is a good balance)
-    img.save(file_path, "JPEG", quality=80, optimize=True)
-    
-    # Return relative URL for storage in DB
-    return f"/static/uploads/{hive_id}/{file_name}"
+
+async def process_and_save_image(image_file: UploadFile, hive_id: str) -> str:
+    file_name = f"{uuid.uuid4()}.jpg"
+    object_path = f"{hive_id}/{file_name}"
+    image_bytes = build_processed_image(image_file)
+
+    if settings.supabase_storage_enabled:
+        return await upload_supabase_object(object_path, image_bytes, "image/jpeg")
+
+    return save_local_object(object_path, image_bytes)
 
 @router.post("/", response_model=schemas.InspectionRecord)
 async def create_inspection(
@@ -83,7 +84,7 @@ async def create_inspection(
     if image:
         try:
             validate_uploaded_image(image)
-            image_url = process_and_save_image(image, db_hive.hive_id)
+            image_url = await process_and_save_image(image, db_hive.hive_id)
         except Exception as e:
             logger.exception("Failed to process inspection image for hive_id=%s", db_hive.hive_id)
             if isinstance(e, HTTPException):

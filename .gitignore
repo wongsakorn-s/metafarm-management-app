@@ -40,6 +40,7 @@ deploy/prod/secrets/*.txt
 deploy/prod/backups/*.sql
 deploy/prod/certs/**/*.pem
 deploy/prod/certs/**/*.key
+deploy/prod/certs/**/*.crt
 
 # OS / Editor
 .DS_Store

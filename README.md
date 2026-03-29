@@ -84,6 +84,39 @@ docker compose -f docker-compose.prod.yml --env-file ./deploy/prod/.env.producti
 - reverse proxy: [reverse-proxy.conf](C:/Users/wongs/OneDrive/Desktop/MetaFarm/deploy/prod/reverse-proxy.conf)
 - certs: [README.md](C:/Users/wongs/OneDrive/Desktop/MetaFarm/deploy/prod/certs/README.md)
 
+## PWA And Mobile Install
+
+frontend รองรับ PWA แล้ว และควรเปิดผ่าน `HTTPS` เท่านั้น
+
+สิ่งที่ตั้งค่าไว้แล้ว:
+
+- web manifest
+- service worker แบบ auto update
+- favicon, apple touch icon, mask icon
+- install shortcut สำหรับ dashboard, hives, และ QR
+
+ถ้าจะติดตั้งบนมือถือแบบใช้งานจริง:
+
+1. ใช้โดเมนจริง เช่น `https://app.yourdomain.com`
+2. ใช้ certificate จาก CA จริง
+3. ตั้ง `APP_DOMAIN`, `API_DOMAIN`, `CORS_ORIGINS` ใน [deploy/prod/.env.production.example](C:/Users/wongs/OneDrive/Desktop/MetaFarm/deploy/prod/.env.production.example)
+
+ถ้ายังทดสอบในวง LAN:
+
+- สร้าง LAN CA และ cert ด้วย [generate-lan-cert.ps1](C:/Users/wongs/OneDrive/Desktop/MetaFarm/deploy/prod/scripts/generate-lan-cert.ps1)
+- ติดตั้ง `rootCA.crt` ลงมือถือก่อน
+- เปิดผ่าน `https://LAN_IP`
+
+## Deploy To Free Tier
+
+ถ้าจะ deploy แบบฟรีที่เหมาะกับ repo นี้ ให้ใช้:
+
+- frontend: `Vercel`
+- backend: `Render`
+- database + image storage: `Supabase`
+
+คู่มือเต็มอยู่ที่ [VERCEL_RENDER_SUPABASE.md](C:/Users/wongs/OneDrive/Desktop/MetaFarm/deploy/VERCEL_RENDER_SUPABASE.md)
+
 ## Monitoring
 
 endpoint ที่มี:

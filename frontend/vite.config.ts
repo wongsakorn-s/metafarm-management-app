@@ -25,14 +25,21 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['favicon.svg', 'favicon-32x32.png', 'apple-touch-icon.png', 'mask-icon.svg', 'pwa-512x512.png'],
       manifest: {
-        name: 'Stingless Bee Hive Management',
+        id: '/',
+        name: 'MetaFarm Bee Management',
         short_name: 'MetaFarm',
-        description: 'Manage your stingless bee hives with ease.',
-        theme_color: '#eab308',
-        background_color: '#ffffff',
+        description: 'ระบบจัดการรังผึ้งชันโรงสำหรับใช้งานในฟาร์มบนมือถือและเดสก์ท็อป',
+        lang: 'th',
+        start_url: '/',
+        scope: '/',
+        orientation: 'portrait',
+        theme_color: '#f59e0b',
+        background_color: '#fff7ed',
         display: 'standalone',
+        display_override: ['standalone', 'window-controls-overlay'],
+        categories: ['productivity', 'business', 'utilities'],
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -49,6 +56,23 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'
+          }
+        ],
+        shortcuts: [
+          {
+            name: 'ภาพรวมฟาร์ม',
+            short_name: 'Dashboard',
+            url: '/'
+          },
+          {
+            name: 'รายการรังผึ้ง',
+            short_name: 'Hives',
+            url: '/hives'
+          },
+          {
+            name: 'พิมพ์ QR',
+            short_name: 'QR',
+            url: '/print-qr'
           }
         ]
       },
@@ -70,7 +94,7 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /\/api\/.*\/*.*/i,
+            urlPattern: /\/api\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',

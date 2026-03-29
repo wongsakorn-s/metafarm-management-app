@@ -6,7 +6,26 @@ services:
       - ./backend/static:/app/static
 
   frontend:
-    command: bun run dev -- --host 0.0.0.0
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    command: bun run dev -- --host 0.0.0.0 --port 5173
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    ports:
+      - "5173:5173"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:5173"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s

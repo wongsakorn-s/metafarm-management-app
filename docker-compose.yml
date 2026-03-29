@@ -50,7 +50,10 @@ services:
       - metafarm_network
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
     container_name: metafarm_frontend
     restart: always
     env_file:

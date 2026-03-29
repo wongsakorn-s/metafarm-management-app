@@ -52,8 +52,13 @@ class Settings(BaseSettings):
         default="http://localhost:5173,http://127.0.0.1:5173",
         alias="CORS_ORIGINS",
     )
+    cors_origin_regex: str | None = Field(default=None, alias="CORS_ORIGIN_REGEX")
     openweather_api_key_raw: str | None = Field(default=None, alias="OPENWEATHER_API_KEY")
     openweather_api_key_file: str | None = Field(default=None, alias="OPENWEATHER_API_KEY_FILE")
+    supabase_url: str | None = Field(default=None, alias="SUPABASE_URL")
+    supabase_storage_bucket: str | None = Field(default=None, alias="SUPABASE_STORAGE_BUCKET")
+    supabase_service_role_key_raw: str | None = Field(default=None, alias="SUPABASE_SERVICE_ROLE_KEY")
+    supabase_service_role_key_file: str | None = Field(default=None, alias="SUPABASE_SERVICE_ROLE_KEY_FILE")
     admin_username: str = Field(default="admin", alias="ADMIN_USERNAME")
     admin_password_raw: str | None = Field(default=None, alias="ADMIN_PASSWORD")
     admin_password_file: str | None = Field(default=None, alias="ADMIN_PASSWORD_FILE")
@@ -91,6 +96,14 @@ class Settings(BaseSettings):
     @property
     def openweather_api_key(self) -> str | None:
         return read_secret(self.openweather_api_key_raw, self.openweather_api_key_file)
+
+    @property
+    def supabase_service_role_key(self) -> str | None:
+        return read_secret(self.supabase_service_role_key_raw, self.supabase_service_role_key_file)
+
+    @property
+    def supabase_storage_enabled(self) -> bool:
+        return bool(self.supabase_url and self.supabase_storage_bucket and self.supabase_service_role_key)
 
     @property
     def admin_password(self) -> str:
