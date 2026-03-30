@@ -44,9 +44,13 @@ def build_mock_weather() -> schemas.WeatherData:
         timestamp=utcnow(),
         temp_c=32.5,
         humidity=65,
-        description="Mock Weather (Waiting for API Key)",
+        feels_like_c=35.0,
+        wind_speed_mps=2.8,
+        description="ท้องฟ้าโปร่ง",
         icon="01d",
         location_name="MetaFarm",
+        location_name_th=settings.farm_location_name_th,
+        source_name="OpenWeather (mock)",
     )
 
 
@@ -68,7 +72,7 @@ async def get_current_weather(db: Session = Depends(get_db)):
     url = (
         "https://api.openweathermap.org/data/2.5/weather"
         f"?lat={settings.farm_lat}&lon={settings.farm_lon}"
-        f"&appid={settings.openweather_api_key}&units=metric"
+        f"&appid={settings.openweather_api_key}&units=metric&lang=th"
     )
 
     try:
@@ -80,7 +84,13 @@ async def get_current_weather(db: Session = Depends(get_db)):
         logger.warning("weather_fetch_failed detail=%s", exc)
         latest_cached_db_weather = latest_weather_from_db(db)
         if latest_cached_db_weather:
-            weather_data = schemas.WeatherData.model_validate(latest_cached_db_weather)
+            weather_data = schemas.WeatherData.model_validate(
+                latest_cached_db_weather,
+                update={
+                    "location_name_th": settings.farm_location_name_th,
+                    "source_name": "OpenWeather (cached)",
+                },
+            )
             set_cached_weather(weather_data)
             return weather_data
         raise HTTPException(status_code=502, detail="Error fetching weather") from exc
@@ -95,7 +105,15 @@ async def get_current_weather(db: Session = Depends(get_db)):
     db.add(weather_entry)
     db.commit()
     db.refresh(weather_entry)
-    weather_data = schemas.WeatherData.model_validate(weather_entry)
+    weather_data = schemas.WeatherData.model_validate(
+        weather_entry,
+        update={
+            "location_name_th": settings.farm_location_name_th,
+            "feels_like_c": data["main"].get("feels_like"),
+            "wind_speed_mps": data.get("wind", {}).get("speed"),
+            "source_name": "OpenWeather",
+        },
+    )
     set_cached_weather(weather_data)
     return weather_data
 

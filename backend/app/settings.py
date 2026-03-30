@@ -76,6 +76,7 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     farm_lat: str = Field(default="13.310314", alias="FARM_LAT")
     farm_lon: str = Field(default="101.111504", alias="FARM_LON")
+    farm_location_name_th: str = Field(default="พื้นที่ฟาร์ม", alias="FARM_LOCATION_NAME_TH")
     static_dir: Path = BACKEND_DIR / "static"
     upload_dir: Path = BACKEND_DIR / "static" / "uploads"
 
