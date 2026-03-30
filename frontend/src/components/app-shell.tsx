@@ -23,13 +23,24 @@ export default function AppShell() {
   return (
     <div className="min-h-screen pb-20 md:pb-0">
       <header className="sticky top-0 z-40 border-b border-white/50 bg-[linear-gradient(180deg,rgba(255,251,235,0.96),rgba(255,251,235,0.82))] backdrop-blur-xl print:hidden">
-        <div className="mx-auto flex max-w-6xl items-center justify-start px-4 py-2 md:justify-between md:px-6 md:py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 md:px-6 md:py-3">
           <Link
             to="/"
             className="flex items-center rounded-full px-1 py-1 transition hover:bg-white/20 md:bg-white/85 md:px-2 md:py-2 md:shadow-sm md:hover:bg-white"
           >
             <img src={logo} alt="โลโก้ MetaFarm" className="h-12 w-auto md:h-12" />
           </Link>
+
+          <Button
+            type="button"
+            variant="ghost"
+            className="rounded-full px-3 md:hidden"
+            onClick={handleLogout}
+            data-testid="logout-button-mobile"
+          >
+            <LogOut className="h-4 w-4" />
+            ออกจากระบบ
+          </Button>
 
           <nav className="hidden items-center gap-2 md:flex">
             {navItems.map((item) => (

@@ -4,6 +4,7 @@ const runtimeBaseUrl = typeof window !== "undefined" ? window.location.origin : 
 export const BASE_URL = import.meta.env.VITE_API_URL || runtimeBaseUrl;
 const API_BASE_URL = `${BASE_URL}/api`;
 const ACCESS_TOKEN_KEY = "metafarm_access_token";
+const SERVER_WAKE_DELAY_MS = 1200;
 
 type AuthSession = {
   access_token: string;
@@ -14,7 +15,51 @@ type AuthSession = {
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
+  _wakeTimer?: ReturnType<typeof setTimeout>;
+  _wakeVisible?: boolean;
 };
+
+type ServerWakeListener = (isWaking: boolean) => void;
+
+const serverWakeListeners = new Set<ServerWakeListener>();
+let activeWakeRequests = 0;
+let isServerWaking = false;
+
+function emitServerWakeState(nextState: boolean) {
+  if (isServerWaking === nextState) {
+    return;
+  }
+
+  isServerWaking = nextState;
+  serverWakeListeners.forEach((listener) => listener(nextState));
+}
+
+function clearWakeTracking(config?: RetryableRequestConfig) {
+  if (!config) {
+    return;
+  }
+
+  if (config._wakeTimer) {
+    clearTimeout(config._wakeTimer);
+    config._wakeTimer = undefined;
+  }
+
+  if (config._wakeVisible) {
+    activeWakeRequests = Math.max(0, activeWakeRequests - 1);
+    config._wakeVisible = false;
+    if (activeWakeRequests === 0) {
+      emitServerWakeState(false);
+    }
+  }
+}
+
+function attachWakeTracking(config: RetryableRequestConfig) {
+  config._wakeTimer = setTimeout(() => {
+    config._wakeVisible = true;
+    activeWakeRequests += 1;
+    emitServerWakeState(true);
+  }, SERVER_WAKE_DELAY_MS);
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -30,6 +75,14 @@ export const authStorage = {
   getToken: () => window.localStorage.getItem(ACCESS_TOKEN_KEY),
   setSession: (session: AuthSession) => window.localStorage.setItem(ACCESS_TOKEN_KEY, session.access_token),
   clearSession: () => window.localStorage.removeItem(ACCESS_TOKEN_KEY),
+};
+
+export const serverWakeStore = {
+  subscribe(listener: ServerWakeListener) {
+    serverWakeListeners.add(listener);
+    return () => serverWakeListeners.delete(listener);
+  },
+  getSnapshot: () => isServerWaking,
 };
 
 const redirectToLogin = () => {
@@ -62,6 +115,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
 };
 
 api.interceptors.request.use((config) => {
+  attachWakeTracking(config as RetryableRequestConfig);
   const token = authStorage.getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -69,11 +123,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+authClient.interceptors.request.use((config) => {
+  attachWakeTracking(config as RetryableRequestConfig);
+  return config;
+});
+
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    clearWakeTracking(response.config as RetryableRequestConfig);
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as RetryableRequestConfig | undefined;
     const isAuthRoute = originalRequest?.url?.startsWith("/auth/");
+    clearWakeTracking(originalRequest);
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !isAuthRoute) {
       originalRequest._retry = true;
@@ -88,6 +151,17 @@ api.interceptors.response.use(
       redirectToLogin();
     }
 
+    return Promise.reject(error);
+  }
+);
+
+authClient.interceptors.response.use(
+  (response) => {
+    clearWakeTracking(response.config as RetryableRequestConfig);
+    return response;
+  },
+  (error: AxiosError) => {
+    clearWakeTracking(error.config as RetryableRequestConfig | undefined);
     return Promise.reject(error);
   }
 );
