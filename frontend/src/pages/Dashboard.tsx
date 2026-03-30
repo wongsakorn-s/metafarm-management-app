@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Bug, CloudSun, Droplets, Leaf, Thermometer, Wind } from "lucide-react";
+import { Bug, Cloud, CloudSun, Droplets, Leaf, Wind } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { dashboardService, weatherService } from "@/services/api";
@@ -23,8 +23,8 @@ interface WeatherData {
   description: string;
   temp_c: number;
   humidity: number;
-  feels_like_c?: number;
   wind_speed_mps?: number;
+  cloudiness_pct?: number;
   source_name?: string;
   icon?: string;
 }
@@ -238,24 +238,17 @@ export default function Dashboard() {
                       </div>
                     )}
                   </div>
-                  <p className="mt-6 text-4xl font-semibold md:mt-8 md:text-5xl">{Math.round(weather.temp_c)}°</p>
+                  <div className="mt-6 md:mt-8">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">อุณหภูมิขณะนี้</p>
+                    <p className="mt-2 text-4xl font-semibold md:text-5xl">{Math.round(weather.temp_c)}°C</p>
+                  </div>
                 </div>
 
                 <div className="grid gap-3 md:grid-cols-3">
                   <div className="rounded-[1.25rem] bg-white p-3.5 shadow-sm md:rounded-[1.5rem] md:p-4">
                     <div className="flex items-center gap-2 text-sm font-semibold text-stone-700">
-                      <Thermometer className="h-4 w-4 text-orange-500" />
-                      รู้สึกเหมือน
-                    </div>
-                    <p className="mt-3 text-xl font-semibold text-stone-900 md:text-2xl">
-                      {weather.feels_like_c?.toFixed(1) ?? weather.temp_c.toFixed(1)}°C
-                    </p>
-                  </div>
-
-                  <div className="rounded-[1.25rem] bg-white p-3.5 shadow-sm md:rounded-[1.5rem] md:p-4">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-stone-700">
                       <Droplets className="h-4 w-4 text-lime-600" />
-                      ความชื้น
+                      ความชื้นสัมพัทธ์
                     </div>
                     <p className="mt-3 text-xl font-semibold text-stone-900 md:text-2xl">{weather.humidity}%</p>
                   </div>
@@ -263,10 +256,20 @@ export default function Dashboard() {
                   <div className="rounded-[1.25rem] bg-white p-3.5 shadow-sm md:rounded-[1.5rem] md:p-4">
                     <div className="flex items-center gap-2 text-sm font-semibold text-stone-700">
                       <Wind className="h-4 w-4 text-sky-600" />
-                      ความเร็วลม
+                      ความเร็วลมเฉลี่ย
                     </div>
                     <p className="mt-3 text-xl font-semibold text-stone-900 md:text-2xl">
                       {weather.wind_speed_mps?.toFixed(1) ?? "0.0"} ม./วินาที
+                    </p>
+                  </div>
+
+                  <div className="rounded-[1.25rem] bg-white p-3.5 shadow-sm md:rounded-[1.5rem] md:p-4">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-stone-700">
+                      <Cloud className="h-4 w-4 text-slate-500" />
+                      เมฆปกคลุม
+                    </div>
+                    <p className="mt-3 text-xl font-semibold text-stone-900 md:text-2xl">
+                      {weather.cloudiness_pct?.toFixed(0) ?? "0"}%
                     </p>
                   </div>
                 </div>

@@ -93,8 +93,8 @@ class WeatherDataBase(BaseModel):
     location_name_th: Optional[str] = None
     description: Optional[str] = None
     icon: Optional[str] = None
-    feels_like_c: Optional[float] = None
     wind_speed_mps: Optional[float] = None
+    cloudiness_pct: Optional[float] = None
     source_name: Optional[str] = None
 
 class WeatherData(WeatherDataBase):

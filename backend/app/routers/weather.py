@@ -1,8 +1,8 @@
-import httpx
 import logging
 from datetime import UTC, datetime, timedelta
 from threading import Lock
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
@@ -44,8 +44,8 @@ def build_mock_weather() -> schemas.WeatherData:
         timestamp=utcnow(),
         temp_c=32.5,
         humidity=65,
-        feels_like_c=35.0,
         wind_speed_mps=2.8,
+        cloudiness_pct=20,
         description="ท้องฟ้าโปร่ง",
         icon="01d",
         location_name="MetaFarm",
@@ -104,16 +104,18 @@ async def get_current_weather(db: Session = Depends(get_db)):
     db.add(weather_entry)
     db.commit()
     db.refresh(weather_entry)
+
     weather_data = schemas.WeatherData.model_validate(weather_entry).model_copy(
         update={
             "location_name_th": settings.farm_location_name_th,
-            "feels_like_c": data["main"].get("feels_like"),
             "wind_speed_mps": data.get("wind", {}).get("speed"),
+            "cloudiness_pct": data.get("clouds", {}).get("all"),
             "source_name": "OpenWeather",
         }
     )
     set_cached_weather(weather_data)
     return weather_data
+
 
 @router.get("/history", response_model=list[schemas.WeatherData])
 def get_weather_history(limit: int = Query(default=10, ge=1, le=100), db: Session = Depends(get_db)):
