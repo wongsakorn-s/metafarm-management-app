@@ -84,12 +84,11 @@ async def get_current_weather(db: Session = Depends(get_db)):
         logger.warning("weather_fetch_failed detail=%s", exc)
         latest_cached_db_weather = latest_weather_from_db(db)
         if latest_cached_db_weather:
-            weather_data = schemas.WeatherData.model_validate(
-                latest_cached_db_weather,
+            weather_data = schemas.WeatherData.model_validate(latest_cached_db_weather).model_copy(
                 update={
                     "location_name_th": settings.farm_location_name_th,
                     "source_name": "OpenWeather (cached)",
-                },
+                }
             )
             set_cached_weather(weather_data)
             return weather_data
@@ -105,14 +104,13 @@ async def get_current_weather(db: Session = Depends(get_db)):
     db.add(weather_entry)
     db.commit()
     db.refresh(weather_entry)
-    weather_data = schemas.WeatherData.model_validate(
-        weather_entry,
+    weather_data = schemas.WeatherData.model_validate(weather_entry).model_copy(
         update={
             "location_name_th": settings.farm_location_name_th,
             "feels_like_c": data["main"].get("feels_like"),
             "wind_speed_mps": data.get("wind", {}).get("speed"),
             "source_name": "OpenWeather",
-        },
+        }
     )
     set_cached_weather(weather_data)
     return weather_data

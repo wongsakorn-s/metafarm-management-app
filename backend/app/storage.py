@@ -42,4 +42,5 @@ def save_local_object(path: str, content: bytes) -> str:
     file_path = settings.upload_dir / Path(path)
     file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_bytes(content)
-    return f"/static/uploads/{path.replace('\\', '/')}"
+    normalized_path = path.replace("\\", "/")
+    return f"/static/uploads/{normalized_path}"
