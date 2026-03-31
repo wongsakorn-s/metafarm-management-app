@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List
 from .. import models, schemas, database
-from ..auth import require_write_access
+from ..auth import require_operator, require_viewer
 
 router = APIRouter(
     prefix="/api/harvests",
@@ -14,7 +14,7 @@ def create_harvest(
     harvest: schemas.HarvestRecordCreate,
     hive_id_int: int = Query(..., ge=1),
     db: Session = Depends(database.get_db),
-    _: None = Depends(require_write_access),
+    current_user: models.User = Depends(require_operator),
 ):
     db_hive = db.query(models.Hive).filter(models.Hive.id == hive_id_int).first()
     if not db_hive:
@@ -27,7 +27,11 @@ def create_harvest(
     return new_harvest
 
 @router.get("/hive/{hive_id_int}", response_model=List[schemas.HarvestRecord])
-def read_hive_harvests(hive_id_int: int, db: Session = Depends(database.get_db)):
+def read_hive_harvests(
+    hive_id_int: int, 
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(require_viewer),
+):
     return db.query(models.HarvestRecord).filter(models.HarvestRecord.hive_id == hive_id_int).all()
 
 @router.get("/", response_model=List[schemas.HarvestRecord])
@@ -35,5 +39,6 @@ def read_all_harvests(
     skip: int = Query(default=0, ge=0, le=10000),
     limit: int = Query(default=100, ge=1, le=500),
     db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(require_viewer),
 ):
     return db.query(models.HarvestRecord).offset(skip).limit(limit).all()

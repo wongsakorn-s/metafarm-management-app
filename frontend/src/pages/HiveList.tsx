@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { hiveService } from "@/services/api";
+import { authStorage, hiveService } from "@/services/api";
 
 interface Hive {
   id: number;
@@ -34,6 +34,7 @@ export default function HiveList() {
   const [showScanner, setShowScanner] = useState(false);
   const [query, setQuery] = useState("");
   const [newHive, setNewHive] = useState(initialHive);
+  const userRole = authStorage.getUserRole();
 
   const loadHives = () => {
     hiveService.getAll().then((res) => setHives(res.data)).catch(console.error);
@@ -77,10 +78,12 @@ export default function HiveList() {
             <h1 className="mt-3 text-[2.35rem] font-semibold leading-[0.98] md:mt-4 md:text-5xl">จัดการรังทั้งหมด</h1>
 
             <div className="mt-5 flex flex-wrap gap-2.5 md:mt-8 md:gap-3">
-              <Button size="sm" className="h-10 px-4 md:h-11 md:px-5" onClick={() => setShowForm(true)} data-testid="open-add-hive-dialog">
-                <Plus className="h-4 w-4" />
-                เพิ่มรัง
-              </Button>
+              {userRole === "admin" && (
+                <Button size="sm" className="h-10 px-4 md:h-11 md:px-5" onClick={() => setShowForm(true)} data-testid="open-add-hive-dialog">
+                  <Plus className="h-4 w-4" />
+                  เพิ่มรัง
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant="secondary"
@@ -161,9 +164,11 @@ export default function HiveList() {
               </div>
 
               <div className="mt-4 flex justify-end md:mt-5">
-                <Button variant="ghost" size="icon" onClick={(event) => handleDelete(hive.hive_id, event)} aria-label={`ลบ ${hive.hive_id}`}>
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
+                {userRole === "admin" && (
+                  <Button variant="ghost" size="icon" onClick={(event) => handleDelete(hive.hive_id, event)} aria-label={`ลบ ${hive.hive_id}`}>
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

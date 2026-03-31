@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { BASE_URL, harvestService, hiveService, inspectionService } from "@/services/api";
+import { authStorage, BASE_URL, harvestService, hiveService, inspectionService } from "@/services/api";
 
 interface Harvest {
   id: number;
@@ -56,6 +56,7 @@ export default function HiveDetail() {
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [newLog, setNewLog] = useState({ honey_yield_ml: 0, propolis_yield_g: 0 });
   const [newNote, setNewNote] = useState({ notes: "", status: "", image: null as File | null });
+  const userRole = authStorage.getUserRole();
 
   const loadData = () => {
     if (!hive_id) return;
@@ -113,6 +114,8 @@ export default function HiveDetail() {
     );
   }
 
+  const canEdit = userRole === "admin" || userRole === "operator";
+
   return (
     <div className="page-shell space-y-6">
       <Button variant="ghost" className="pl-0" onClick={() => navigate("/hives")}>
@@ -151,21 +154,23 @@ export default function HiveDetail() {
           </CardContent>
         </Card>
 
-        <Card className="border-stone-200">
-          <CardHeader>
-            <CardTitle>บันทึกข้อมูล</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            <Button className="justify-start" onClick={() => setShowLogForm(true)} data-testid="open-harvest-dialog">
-              <Droplets className="h-4 w-4" />
-              บันทึกผลผลิต
-            </Button>
-            <Button variant="secondary" className="justify-start" onClick={() => setShowNoteForm(true)} data-testid="open-inspection-dialog">
-              <ClipboardList className="h-4 w-4" />
-              เพิ่มบันทึกการตรวจ
-            </Button>
-          </CardContent>
-        </Card>
+        {canEdit && (
+          <Card className="border-stone-200">
+            <CardHeader>
+              <CardTitle>บันทึกข้อมูล</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <Button className="justify-start" onClick={() => setShowLogForm(true)} data-testid="open-harvest-dialog">
+                <Droplets className="h-4 w-4" />
+                บันทึกผลผลิต
+              </Button>
+              <Button variant="secondary" className="justify-start" onClick={() => setShowNoteForm(true)} data-testid="open-inspection-dialog">
+                <ClipboardList className="h-4 w-4" />
+                เพิ่มบันทึกการตรวจ
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">

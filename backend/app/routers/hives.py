@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List
 from .. import models, schemas, database
-from ..auth import require_write_access
+from ..auth import require_admin, require_operator, require_viewer
 
 router = APIRouter(
     prefix="/api/hives",
@@ -13,7 +13,7 @@ router = APIRouter(
 def create_hive(
     hive: schemas.HiveCreate,
     db: Session = Depends(database.get_db),
-    _: None = Depends(require_write_access),
+    current_user: models.User = Depends(require_admin),
 ):
     db_hive = db.query(models.Hive).filter(models.Hive.hive_id == hive.hive_id).first()
     if db_hive:
@@ -29,11 +29,16 @@ def read_hives(
     skip: int = Query(default=0, ge=0, le=10000),
     limit: int = Query(default=100, ge=1, le=500),
     db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(require_viewer),
 ):
     return db.query(models.Hive).offset(skip).limit(limit).all()
 
 @router.get("/{hive_id}", response_model=schemas.Hive)
-def read_hive(hive_id: str, db: Session = Depends(database.get_db)):
+def read_hive(
+    hive_id: str, 
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(require_viewer),
+):
     db_hive = db.query(models.Hive).filter(models.Hive.hive_id == hive_id).first()
     if db_hive is None:
         raise HTTPException(status_code=404, detail="Hive not found")
@@ -44,7 +49,7 @@ def update_hive(
     hive_id: str,
     hive_update: schemas.HiveCreate,
     db: Session = Depends(database.get_db),
-    _: None = Depends(require_write_access),
+    current_user: models.User = Depends(require_operator),
 ):
     db_hive = db.query(models.Hive).filter(models.Hive.hive_id == hive_id).first()
     if not db_hive:
@@ -68,7 +73,7 @@ def update_hive(
 def delete_hive(
     hive_id: str,
     db: Session = Depends(database.get_db),
-    _: None = Depends(require_write_access),
+    current_user: models.User = Depends(require_admin),
 ):
     db_hive = db.query(models.Hive).filter(models.Hive.hive_id == hive_id).first()
     if not db_hive:

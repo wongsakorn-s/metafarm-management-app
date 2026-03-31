@@ -75,6 +75,16 @@ export const authStorage = {
   getToken: () => window.localStorage.getItem(ACCESS_TOKEN_KEY),
   setSession: (session: AuthSession) => window.localStorage.setItem(ACCESS_TOKEN_KEY, session.access_token),
   clearSession: () => window.localStorage.removeItem(ACCESS_TOKEN_KEY),
+  getUserRole: () => {
+    const token = window.localStorage.getItem(ACCESS_TOKEN_KEY);
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.role as string;
+    } catch {
+      return null;
+    }
+  },
 };
 
 export const serverWakeStore = {

@@ -20,6 +20,8 @@ class HiveStatus(str, enum.Enum):
 
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
+    OPERATOR = "operator"
+    VIEWER = "viewer"
 
 
 class Hive(Base):
@@ -41,7 +43,7 @@ class HarvestRecord(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     hive_id = Column(Integer, ForeignKey("hives.id"), nullable=False)
-    harvest_date = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+    harvest_date = Column(DateTime(timezone=True), default=utcnow, nullable=False, index=True)
     honey_yield_ml = Column(Float, default=0.0)
     propolis_yield_g = Column(Float, default=0.0)
     hive = relationship("Hive", back_populates="harvests")
@@ -52,7 +54,7 @@ class InspectionRecord(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     hive_id = Column(Integer, ForeignKey("hives.id"), nullable=False)
-    inspection_date = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+    inspection_date = Column(DateTime(timezone=True), default=utcnow, nullable=False, index=True)
     notes = Column(String, nullable=True)
     image_url = Column(String, nullable=True)
     hive_status = Column(Enum(HiveStatus), nullable=True)

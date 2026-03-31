@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from .. import models, schemas
 from ..database import get_db
 from ..settings import settings
+from ..auth import require_viewer
 
 router = APIRouter(prefix="/api/weather", tags=["weather"])
 logger = logging.getLogger("metafarm.weather")
@@ -59,7 +60,10 @@ def latest_weather_from_db(db: Session) -> models.WeatherData | None:
 
 
 @router.get("/current", response_model=schemas.WeatherData)
-async def get_current_weather(db: Session = Depends(get_db)):
+async def get_current_weather(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_viewer),
+):
     cached_weather = get_cached_weather()
     if cached_weather:
         return cached_weather
@@ -118,5 +122,9 @@ async def get_current_weather(db: Session = Depends(get_db)):
 
 
 @router.get("/history", response_model=list[schemas.WeatherData])
-def get_weather_history(limit: int = Query(default=10, ge=1, le=100), db: Session = Depends(get_db)):
+def get_weather_history(
+    limit: int = Query(default=10, ge=1, le=100), 
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_viewer),
+):
     return db.query(models.WeatherData).order_by(models.WeatherData.timestamp.desc()).limit(limit).all()

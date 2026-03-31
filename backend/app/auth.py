@@ -228,10 +228,26 @@ def get_current_user(
     return user
 
 
-def require_write_access(current_user: models.User = Depends(get_current_user)) -> models.User:
+def require_admin(current_user: models.User = Depends(get_current_user)) -> models.User:
     if current_user.role != models.UserRole.ADMIN:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Administrator access required")
     return current_user
+
+
+def require_operator(current_user: models.User = Depends(get_current_user)) -> models.User:
+    if current_user.role not in {models.UserRole.ADMIN, models.UserRole.OPERATOR}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Operator access required")
+    return current_user
+
+
+def require_viewer(current_user: models.User = Depends(get_current_user)) -> models.User:
+    # All active users can be viewers
+    return current_user
+
+
+def require_write_access(current_user: models.User = Depends(get_current_user)) -> models.User:
+    """Legacy helper for backward compatibility, mapped to operator level."""
+    return require_operator(current_user)
 
 
 def ensure_bootstrap_admin(db: Session) -> None:

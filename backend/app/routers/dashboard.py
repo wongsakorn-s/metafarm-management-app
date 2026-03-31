@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from .. import models, database
+from ..auth import require_viewer
 
 router = APIRouter(
     prefix="/api/dashboard",
@@ -9,7 +10,10 @@ router = APIRouter(
 )
 
 @router.get("/stats")
-def get_dashboard_stats(db: Session = Depends(database.get_db)):
+def get_dashboard_stats(
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(require_viewer),
+):
     # Total Hives
     total_hives = db.query(models.Hive).count()
     
@@ -37,7 +41,7 @@ def get_dashboard_stats(db: Session = Depends(database.get_db)):
         hive = db.query(models.Hive).filter(models.Hive.id == h.hive_id).first()
         recent_list.append({
             "id": h.id,
-            "hive_name": hive.name or hive.hive_id,
+            "hive_name": (hive.name if hive else h.hive_id) or h.hive_id,
             "date": h.harvest_date,
             "honey": h.honey_yield_ml,
             "propolis": h.propolis_yield_g

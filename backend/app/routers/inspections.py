@@ -1,13 +1,13 @@
 import logging
 from io import BytesIO
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import uuid
 from PIL import Image
 from .. import models, schemas, database
-from ..auth import require_write_access
+from ..auth import require_operator
 from ..settings import settings
 from ..storage import save_local_object, upload_supabase_object
 
@@ -32,47 +32,64 @@ def validate_uploaded_image(image_file: UploadFile) -> None:
     if size > MAX_IMAGE_SIZE_BYTES:
         raise HTTPException(status_code=400, detail="Image must not exceed 5 MB")
 
-def build_processed_image(image_file: UploadFile) -> bytes:
-    """Resize and compress image to JPEG bytes."""
-    output = BytesIO()
 
-    file_name = f"{uuid.uuid4()}.jpg"
-    img = Image.open(image_file.file)
-
+async def process_and_update_inspection_image(
+    db_session_factory,
+    inspection_id: int,
+    image_bytes: bytes,
+    hive_id: str
+):
+    """Background task to process image and update DB record."""
+    db = db_session_factory()
     try:
-        from PIL import ImageOps
-        img = ImageOps.exif_transpose(img)
-    except:
-        pass
+        file_name = f"{uuid.uuid4()}.jpg"
+        object_path = f"{hive_id}/{file_name}"
+        
+        # Process image (CPU intensive)
+        output = BytesIO()
+        img = Image.open(BytesIO(image_bytes))
+        
+        try:
+            from PIL import ImageOps
+            img = ImageOps.exif_transpose(img)
+        except:
+            pass
+            
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+            
+        max_size = (1200, 1200)
+        img.thumbnail(max_size, Image.LANCZOS)
+        img.save(output, "JPEG", quality=80, optimize=True)
+        processed_bytes = output.getvalue()
 
-    if img.mode in ("RGBA", "P"):
-        img = img.convert("RGB")
+        # Save to storage (Network IO)
+        if settings.supabase_storage_enabled:
+            image_url = await upload_supabase_object(object_path, processed_bytes, "image/jpeg")
+        else:
+            image_url = save_local_object(object_path, processed_bytes)
 
-    max_size = (1200, 1200)
-    img.thumbnail(max_size, Image.LANCZOS)
-    img.save(output, "JPEG", quality=80, optimize=True)
-    image_file.file.seek(0)
-    return output.getvalue()
+        # Update DB
+        inspection = db.query(models.InspectionRecord).filter(models.InspectionRecord.id == inspection_id).first()
+        if inspection:
+            inspection.image_url = image_url
+            db.commit()
+            logger.info("Successfully processed background image for inspection_id=%s", inspection_id)
+    except Exception:
+        logger.exception("Failed background image processing for inspection_id=%s", inspection_id)
+    finally:
+        db.close()
 
-
-async def process_and_save_image(image_file: UploadFile, hive_id: str) -> str:
-    file_name = f"{uuid.uuid4()}.jpg"
-    object_path = f"{hive_id}/{file_name}"
-    image_bytes = build_processed_image(image_file)
-
-    if settings.supabase_storage_enabled:
-        return await upload_supabase_object(object_path, image_bytes, "image/jpeg")
-
-    return save_local_object(object_path, image_bytes)
 
 @router.post("/", response_model=schemas.InspectionRecord)
 async def create_inspection(
+    background_tasks: BackgroundTasks,
     hive_id_int: int = Form(...),
     notes: Optional[str] = Form(None),
     status: Optional[models.HiveStatus] = Form(None),
     image: Optional[UploadFile] = File(None),
     db: Session = Depends(database.get_db),
-    _: None = Depends(require_write_access),
+    current_user: models.User = Depends(require_operator),
 ):
     db_hive = db.query(models.Hive).filter(models.Hive.id == hive_id_int).first()
     if not db_hive:
@@ -80,22 +97,12 @@ async def create_inspection(
 
     validated_notes = schemas.InspectionRecordCreate(notes=notes, hive_status=status).notes
     
-    image_url = None
-    if image:
-        try:
-            validate_uploaded_image(image)
-            image_url = await process_and_save_image(image, db_hive.hive_id)
-        except Exception as e:
-            logger.exception("Failed to process inspection image for hive_id=%s", db_hive.hive_id)
-            if isinstance(e, HTTPException):
-                raise
-            raise HTTPException(status_code=400, detail="Failed to process inspection image") from e
-
+    # 1. บันทึกข้อมูลการตรวจรังเบื้องต้นก่อน (ยังไม่มีรูป)
     new_inspection = models.InspectionRecord(
         hive_id=hive_id_int,
         notes=validated_notes,
         hive_status=status or db_hive.status,
-        image_url=image_url
+        image_url=None 
     )
     
     if status:
@@ -104,6 +111,19 @@ async def create_inspection(
     db.add(new_inspection)
     db.commit()
     db.refresh(new_inspection)
+
+    # 2. ถ้ามีการส่งรูปมา ให้ส่งไปประมวลผลใน Background
+    if image:
+        validate_uploaded_image(image)
+        image_content = await image.read()
+        background_tasks.add_task(
+            process_and_update_inspection_image,
+            database.SessionLocal,
+            new_inspection.id,
+            image_content,
+            db_hive.hive_id
+        )
+
     return new_inspection
 
 @router.get("/hive/{hive_id_int}", response_model=List[schemas.InspectionRecord])
@@ -111,6 +131,7 @@ def read_hive_inspections(
     hive_id_int: int,
     limit: int = Query(default=100, ge=1, le=500),
     db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(require_operator),
 ):
     return (
         db.query(models.InspectionRecord)
