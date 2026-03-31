@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, QrCode, Search, Trash2 } from "lucide-react";
+import { Plus, QrCode, Search, Trash2, Bug } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import QRScanner from "@/components/QRScanner";
@@ -70,132 +70,121 @@ export default function HiveList() {
   );
 
   return (
-    <div className="page-shell space-y-5 md:space-y-6">
-      <section className="grid gap-4 md:gap-5 lg:grid-cols-[1fr_0.88fr]">
-        <Card className="overflow-hidden border-amber-100 bg-[linear-gradient(135deg,rgba(28,25,23,0.95),rgba(120,53,15,0.9),rgba(245,158,11,0.82))] text-white">
-          <CardContent className="relative p-5 md:p-8">
-            <div className="pointer-events-none absolute -right-10 top-1/2 h-36 w-36 -translate-y-1/2 rounded-full bg-amber-200/20 blur-3xl md:h-48 md:w-48" />
-            <h1 className="mt-3 text-[2.35rem] font-semibold leading-[0.98] md:mt-4 md:text-5xl">จัดการรังทั้งหมด</h1>
+    <div className="page-shell space-y-6 md:space-y-10 pb-10">
+      <section className="grid gap-5 lg:grid-cols-[1fr_0.88fr]">
+        <Card className="overflow-hidden border-none bg-stone-900 text-white rounded-[2.5rem] shadow-2xl">
+          <CardContent className="relative p-8 md:p-12">
+            <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-amber-500/20 blur-3xl" />
+            <h1 className="text-5xl font-black leading-none md:text-7xl">จัดการรัง</h1>
+            <p className="mt-4 text-stone-400 text-lg md:text-xl">ดูแลและติดตามสถานะรังผึ้งชันโรงทั้งหมดในฟาร์ม</p>
 
-            <div className="mt-5 flex flex-wrap gap-2.5 md:mt-8 md:gap-3">
+            <div className="mt-10 flex flex-wrap gap-3">
               {userRole === "admin" && (
-                <Button size="sm" className="h-10 px-4 md:h-11 md:px-5" onClick={() => setShowForm(true)} data-testid="open-add-hive-dialog">
-                  <Plus className="h-4 w-4" />
+                <Button size="lg" className="h-14 rounded-2xl bg-amber-500 px-8 text-lg font-black hover:bg-amber-600 shadow-lg shadow-amber-500/20" onClick={() => setShowForm(true)} data-testid="open-add-hive-dialog">
+                  <Plus className="mr-2 h-6 w-6" />
                   เพิ่มรัง
                 </Button>
               )}
               <Button
-                size="sm"
+                size="lg"
                 variant="secondary"
-                className="h-10 px-4 md:h-11 md:px-5"
+                className="h-14 rounded-2xl bg-white text-stone-900 px-8 text-lg font-black hover:bg-stone-100"
                 onClick={() => setShowScanner(true)}
               >
-                <QrCode className="h-4 w-4" />
+                <QrCode className="mr-2 h-6 w-6" />
                 สแกน QR
-              </Button>
-              <Button size="sm" variant="outline" className="h-10 px-4 md:h-11 md:px-5" onClick={() => navigate("/print-qr")}>
-                พิมพ์ป้าย
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-lime-100 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(244,250,236,0.92))]">
-          <CardHeader className="p-5 pb-4 md:p-6 md:pb-4">
-            <CardTitle className="text-[1.9rem] leading-none md:text-2xl">จำนวนรัง {hives.length}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 p-5 pt-0 md:p-6 md:pt-0">
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { value: "Strong", label: "แข็งแรง" },
-                { value: "Normal", label: "ปกติ" },
-                { value: "Weak", label: "อ่อนแอ" },
-                { value: "Empty", label: "ว่าง" },
-              ].map((status) => (
-                <div key={status.value} className="rounded-[1.25rem] bg-white p-3.5 shadow-sm md:rounded-[1.5rem] md:p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500 md:text-xs md:tracking-[0.24em]">
-                    {status.label}
-                  </p>
-                  <p className="mt-2 text-2xl font-semibold text-stone-900 md:mt-3 md:text-3xl">
-                    {hives.filter((hive) => hive.status === status.value).length}
-                  </p>
-                </div>
-              ))}
+        <Card className="border-none bg-white shadow-2xl shadow-stone-200/50 rounded-[2.5rem]">
+          <CardContent className="p-8 space-y-6">
+            <div className="flex items-center justify-between">
+               <h2 className="text-2xl font-black">สรุปภาพรวม</h2>
+               <div className="rounded-2xl bg-stone-100 px-4 py-2 text-lg font-black text-stone-600">{hives.length} รัง</div>
             </div>
+            
             <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+              <Search className="absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-stone-400" />
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="ค้นหาจากรหัสรัง ชื่อ สายพันธุ์ หรือพื้นที่"
-                className="h-10 pl-11 md:h-11"
+                placeholder="ค้นหารหัสรัง, ชื่อ, สายพันธุ์..."
+                className="h-16 rounded-[1.5rem] border-none bg-stone-50 pl-14 text-lg font-medium focus-visible:ring-2 focus-visible:ring-amber-500"
               />
             </div>
           </CardContent>
         </Card>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredHives.map((hive) => (
           <Card
             key={hive.id}
-            className="cursor-pointer border-stone-200/80 transition duration-200 hover:-translate-y-1 hover:shadow-[0_24px_60px_-30px_rgba(41,37,36,0.45)]"
+            className="group cursor-pointer border-none bg-white transition-all duration-300 rounded-[2.5rem] shadow-xl shadow-stone-200/40 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-900/10"
             onClick={() => navigate(`/hives/${hive.hive_id}`)}
           >
-            <CardContent className="p-4 md:p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-700">รหัสรัง</p>
-                  <h3 className="mt-2 truncate text-2xl font-semibold text-stone-900">{hive.hive_id}</h3>
-                  <p className="mt-2 truncate text-sm text-stone-600">{hive.name || "ยังไม่ได้ตั้งชื่อ"}</p>
+            <CardContent className="p-8">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-600">Hive ID</p>
+                  <h3 className="text-3xl font-black text-stone-900">{hive.hive_id}</h3>
+                  <p className="text-lg font-bold text-stone-500">{hive.name || "Unnamed Hive"}</p>
                 </div>
                 <StatusBadge status={hive.status} />
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3 text-sm md:mt-6">
-                <div className="rounded-2xl bg-amber-50/80 p-3">
-                  <p className="text-xs uppercase tracking-[0.22em] text-stone-500">สายพันธุ์</p>
-                  <p className="mt-2 truncate font-semibold text-stone-900">{hive.species || "-"}</p>
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                <div className="rounded-3xl bg-stone-50 p-5 transition-colors group-hover:bg-amber-50">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">สายพันธุ์</p>
+                  <p className="mt-2 text-lg font-black text-stone-800 truncate">{hive.species || "-"}</p>
                 </div>
-                <div className="rounded-2xl bg-lime-50/80 p-3">
-                  <p className="text-xs uppercase tracking-[0.22em] text-stone-500">ตำแหน่ง</p>
-                  <p className="mt-2 truncate font-semibold text-stone-900">{hive.location || "-"}</p>
+                <div className="rounded-3xl bg-stone-50 p-5 transition-colors group-hover:bg-lime-50">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">ตำแหน่ง</p>
+                  <p className="mt-2 text-lg font-black text-stone-800 truncate">{hive.location || "-"}</p>
                 </div>
               </div>
 
-              <div className="mt-4 flex justify-end md:mt-5">
-                {userRole === "admin" && (
-                  <Button variant="ghost" size="icon" onClick={(event) => handleDelete(hive.hive_id, event)} aria-label={`ลบ ${hive.hive_id}`}>
-                    <Trash2 className="h-4 w-4 text-red-500" />
+              {userRole === "admin" && (
+                <div className="mt-6 flex justify-end">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-12 w-12 rounded-2xl text-red-400 hover:bg-red-50 hover:text-red-600" 
+                    onClick={(event) => handleDelete(hive.hive_id, event)}
+                  >
+                    <Trash2 className="h-6 w-6" />
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
       </section>
 
       {filteredHives.length === 0 && (
-        <Card className="border-dashed border-stone-300">
-          <CardContent className="p-8 text-center md:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-stone-500">ไม่พบข้อมูลรัง</p>
-          </CardContent>
-        </Card>
+        <div className="py-20 text-center space-y-4">
+           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-stone-100 text-stone-300">
+              <Bug className="h-10 w-10" />
+           </div>
+           <p className="text-xl font-bold text-stone-400">ไม่พบข้อมูลรังที่ค้นหา</p>
+        </div>
       )}
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogDescription>กรอกข้อมูลรังเพื่อเพิ่มรายการใหม่เข้าสู่ระบบ</DialogDescription>
-            <DialogTitle>เพิ่มรังใหม่</DialogTitle>
+        <DialogContent className="rounded-[2.5rem] p-8 max-w-xl">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-3xl font-black">เพิ่มรังใหม่</DialogTitle>
+            <DialogDescription className="text-lg">ระบุรายละเอียดเบื้องต้นของรังชันโรง</DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4" data-testid="add-hive-form">
-            <div className="grid gap-4 sm:grid-cols-2">
+          <form onSubmit={handleSubmit} className="mt-6 space-y-6" data-testid="add-hive-form">
+            <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-stone-700">รหัสรัง</label>
+                <label className="text-sm font-black uppercase tracking-widest text-stone-500 ml-1">รหัสรัง</label>
                 <Input
-                  data-testid="add-hive-id"
+                  className="h-14 rounded-2xl text-lg font-bold bg-stone-50 border-none"
                   value={newHive.hive_id}
                   onChange={(event) => setNewHive({ ...newHive, hive_id: event.target.value })}
                   placeholder="HIVE-001"
@@ -203,39 +192,20 @@ export default function HiveList() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-stone-700">ชื่อรัง</label>
+                <label className="text-sm font-black uppercase tracking-widest text-stone-500 ml-1">ชื่อรัง</label>
                 <Input
-                  data-testid="add-hive-name"
+                  className="h-14 rounded-2xl text-lg font-bold bg-stone-50 border-none"
                   value={newHive.name}
                   onChange={(event) => setNewHive({ ...newHive, name: event.target.value })}
-                  placeholder="สวนด้านเหนือ"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-stone-700">สายพันธุ์</label>
-                <Input
-                  data-testid="add-hive-species"
-                  value={newHive.species}
-                  onChange={(event) => setNewHive({ ...newHive, species: event.target.value })}
-                  placeholder="ชันโรงขนเงิน"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-stone-700">ตำแหน่ง</label>
-                <Input
-                  data-testid="add-hive-location"
-                  value={newHive.location}
-                  onChange={(event) => setNewHive({ ...newHive, location: event.target.value })}
-                  placeholder="โซน B"
+                  placeholder="สวนหน้าบ้าน"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-stone-700">สถานะ</label>
+              <label className="text-sm font-black uppercase tracking-widest text-stone-500 ml-1">สถานะเริ่มต้น</label>
               <select
-                data-testid="add-hive-status"
-                className="flex h-11 w-full rounded-2xl border border-[hsl(var(--input))] bg-white/90 px-4 py-2 text-sm text-stone-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                className="flex h-14 w-full rounded-2xl bg-stone-50 px-4 py-2 text-lg font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 value={newHive.status}
                 onChange={(event) => setNewHive({ ...newHive, status: event.target.value })}
               >
@@ -246,11 +216,11 @@ export default function HiveList() {
               </select>
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
+            <DialogFooter className="pt-4 flex gap-3">
+              <Button type="button" variant="ghost" className="h-14 flex-1 rounded-2xl text-lg font-bold" onClick={() => setShowForm(false)}>
                 ยกเลิก
               </Button>
-              <Button type="submit" data-testid="submit-add-hive">
+              <Button type="submit" className="h-14 flex-1 rounded-2xl text-lg font-black bg-stone-900 shadow-xl shadow-stone-200">
                 บันทึกรัง
               </Button>
             </DialogFooter>

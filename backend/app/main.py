@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from .auth import ensure_bootstrap_admin
 from .database import get_db
 from .logging_config import configure_logging
-from .routers import auth, hives, harvests, dashboard, inspections, weather
+from .routers import auth, hives, harvests, dashboard, inspections, weather, users
 from .settings import settings
 
 configure_logging(settings.log_level)
@@ -66,6 +66,7 @@ app.include_router(dashboard.router)
 app.include_router(inspections.router)
 app.include_router(weather.router)
 app.include_router(auth.router)
+app.include_router(users.router)
 
 
 def is_rate_limited(request: Request) -> bool:

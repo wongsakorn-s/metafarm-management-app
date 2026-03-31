@@ -107,8 +107,8 @@ export default function HiveDetail() {
     return (
       <div className="page-shell flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-amber-200 border-t-amber-500" />
-          <p className="mt-4 text-sm font-semibold uppercase tracking-[0.28em] text-amber-700">กำลังโหลดข้อมูลรัง</p>
+          <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-amber-200 border-t-amber-500" />
+          <p className="mt-6 text-lg font-black uppercase tracking-[0.2em] text-amber-700">กำลังโหลดข้อมูล</p>
         </div>
       </div>
     );
@@ -117,55 +117,58 @@ export default function HiveDetail() {
   const canEdit = userRole === "admin" || userRole === "operator";
 
   return (
-    <div className="page-shell space-y-6">
-      <Button variant="ghost" className="pl-0" onClick={() => navigate("/hives")}>
-        <ArrowLeft className="h-4 w-4" />
-        กลับไปรายการรัง
+    <div className="page-shell space-y-6 md:space-y-10 pb-10">
+      <Button variant="ghost" className="pl-0 text-lg font-bold hover:bg-transparent" onClick={() => navigate("/hives")}>
+        <ArrowLeft className="mr-2 h-5 w-5" />
+        กลับหน้ารายการ
       </Button>
 
-      <section className="grid gap-5 lg:grid-cols-[1.12fr_0.88fr]">
-        <Card className="overflow-hidden border-amber-100 bg-[linear-gradient(140deg,rgba(255,251,235,0.96),rgba(255,237,213,0.92),rgba(254,215,170,0.78))]">
-          <CardContent className="relative p-6 md:p-8">
-            <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-white/50 blur-3xl" />
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h1 className="text-4xl font-semibold text-stone-900 md:text-5xl">{hive.hive_id}</h1>
-                <p className="mt-3 text-base text-stone-700">{hive.name || "ยังไม่ได้ตั้งชื่อ"}</p>
+      <section className="grid gap-6 lg:grid-cols-[1.12fr_0.88fr]">
+        <Card className="overflow-hidden border-none bg-white shadow-2xl shadow-stone-200/50 rounded-[2.5rem]">
+          <CardContent className="relative p-8 md:p-12">
+            <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-amber-50 blur-3xl" />
+            <div className="flex flex-wrap items-start justify-between gap-6">
+              <div className="space-y-2">
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-600">รหัสรังผึ้ง</p>
+                <h1 className="text-5xl font-black text-stone-900 md:text-7xl">{hive.hive_id}</h1>
+                <p className="text-2xl font-bold text-stone-500">{hive.name || "ยังไม่ได้ตั้งชื่อ"}</p>
               </div>
-              <StatusBadge status={hive.status} />
+              <div className="scale-125 origin-top-right">
+                <StatusBadge status={hive.status} />
+              </div>
             </div>
 
-            <div className="mt-8 grid gap-3 md:grid-cols-2">
-              <div className="rounded-[1.5rem] bg-white/80 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-stone-700">
-                  <Sprout className="h-4 w-4 text-lime-700" />
+            <div className="mt-12 grid gap-4 md:grid-cols-2">
+              <div className="rounded-[2rem] bg-stone-50 p-6 border border-stone-100">
+                <div className="flex items-center gap-3 text-sm font-black uppercase tracking-wider text-stone-400 mb-4">
+                  <Sprout className="h-5 w-5 text-lime-600" />
                   สายพันธุ์
                 </div>
-                <p className="mt-3 text-lg font-semibold text-stone-900">{hive.species || "-"}</p>
+                <p className="text-2xl font-black text-stone-800">{hive.species || "-"}</p>
               </div>
-              <div className="rounded-[1.5rem] bg-white/80 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-stone-700">
-                  <MapPin className="h-4 w-4 text-orange-600" />
+              <div className="rounded-[2rem] bg-stone-50 p-6 border border-stone-100">
+                <div className="flex items-center gap-3 text-sm font-black uppercase tracking-wider text-stone-400 mb-4">
+                  <MapPin className="h-5 w-5 text-orange-500" />
                   ตำแหน่ง
                 </div>
-                <p className="mt-3 text-lg font-semibold text-stone-900">{hive.location || "-"}</p>
+                <p className="text-2xl font-black text-stone-800">{hive.location || "-"}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {canEdit && (
-          <Card className="border-stone-200">
-            <CardHeader>
-              <CardTitle>บันทึกข้อมูล</CardTitle>
+          <Card className="border-none bg-stone-900 text-white shadow-2xl rounded-[2.5rem] overflow-hidden">
+            <CardHeader className="p-8 md:p-12 pb-4">
+              <CardTitle className="text-2xl font-black uppercase tracking-wider text-amber-500">บันทึกข้อมูลรัง</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-3">
-              <Button className="justify-start" onClick={() => setShowLogForm(true)} data-testid="open-harvest-dialog">
-                <Droplets className="h-4 w-4" />
+            <CardContent className="p-8 md:p-12 pt-0 grid gap-4">
+              <Button className="h-16 justify-start rounded-2xl bg-white text-stone-900 text-xl font-black hover:bg-stone-100" onClick={() => setShowLogForm(true)} data-testid="open-harvest-dialog">
+                <Droplets className="mr-3 h-6 w-6 text-blue-500" />
                 บันทึกผลผลิต
               </Button>
-              <Button variant="secondary" className="justify-start" onClick={() => setShowNoteForm(true)} data-testid="open-inspection-dialog">
-                <ClipboardList className="h-4 w-4" />
+              <Button className="h-16 justify-start rounded-2xl bg-white/10 text-white text-xl font-black hover:bg-white/20 border border-white/10" onClick={() => setShowNoteForm(true)} data-testid="open-inspection-dialog">
+                <ClipboardList className="mr-3 h-6 w-6 text-lime-400" />
                 เพิ่มบันทึกการตรวจ
               </Button>
             </CardContent>
@@ -173,141 +176,110 @@ export default function HiveDetail() {
         )}
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>บันทึกการตรวจ</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      <section className="grid gap-8 lg:grid-cols-2">
+        <div className="space-y-6">
+          <h2 className="text-3xl font-black px-2">บันทึกการตรวจรัง</h2>
+          <div className="space-y-4">
             {inspections.length > 0 ? (
               inspections.map((inspection) => (
-                <article key={inspection.id} className="overflow-hidden rounded-[1.75rem] border border-stone-200 bg-white/90">
+                <article key={inspection.id} className="overflow-hidden rounded-[2.5rem] bg-white shadow-xl shadow-stone-200/40 border border-stone-100">
                   {resolveInspectionImageUrl(inspection.image_url) && (
                     <div className="aspect-video overflow-hidden bg-stone-100">
                       <img
                         src={resolveInspectionImageUrl(inspection.image_url)}
-                        alt="ภาพการตรวจ"
-                        className="h-full w-full object-cover transition duration-300 hover:scale-[1.03]"
+                        alt="Inspection"
+                        className="h-full w-full object-cover"
                       />
                     </div>
                   )}
-                  <div className="p-5">
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.26em] text-amber-700">
-                        {new Date(inspection.inspection_date).toLocaleDateString()}
+                  <div className="p-8 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-lg font-black text-amber-600">
+                        {new Date(inspection.inspection_date).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}
                       </p>
                       {inspection.hive_status && <StatusBadge status={inspection.hive_status} />}
                     </div>
-                    <p className="mt-4 text-sm leading-7 text-stone-600">{inspection.notes || "-"}</p>
+                    <p className="text-xl leading-relaxed text-stone-600">{inspection.notes || "-"}</p>
                   </div>
                 </article>
               ))
             ) : (
-              <div className="rounded-[1.75rem] border border-dashed border-stone-300 bg-white/70 p-8 text-center text-sm text-stone-500">
+              <div className="rounded-[2.5rem] border-2 border-dashed border-stone-200 p-12 text-center text-xl font-bold text-stone-400">
                 ยังไม่มีบันทึกการตรวจ
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>ประวัติผลผลิต</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="space-y-6">
+          <h2 className="text-3xl font-black px-2">ประวัติผลผลิต</h2>
+          <div className="space-y-4">
             {hive.harvests && hive.harvests.length > 0 ? (
               hive.harvests.map((harvest) => (
                 <div
                   key={harvest.id}
-                  className="flex items-center justify-between gap-4 rounded-[1.5rem] border border-amber-100 bg-amber-50/55 px-4 py-4"
+                  className="flex items-center justify-between gap-4 rounded-[2rem] bg-white p-6 shadow-xl shadow-stone-200/40 border border-stone-100 transition-all hover:scale-[1.02]"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-full bg-white p-3 text-amber-600 shadow-sm">
-                      <Droplets className="h-4 w-4" />
+                  <div className="flex items-center gap-5">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                      <Droplets className="h-7 w-7" />
                     </div>
                     <div>
-                      <p className="text-base font-semibold text-stone-900">{new Date(harvest.harvest_date).toLocaleDateString()}</p>
-                      <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
+                      <p className="text-xl font-black text-stone-900">{new Date(harvest.harvest_date).toLocaleDateString()}</p>
+                      <p className="text-sm font-bold uppercase tracking-widest text-stone-400">
                         {new Date(harvest.harvest_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-semibold text-amber-700">{harvest.honey_yield_ml} มล.</p>
-                    <p className="text-xs text-stone-500">{harvest.propolis_yield_g} กรัม โพรโพลิส</p>
+                    <p className="text-2xl font-black text-amber-600">{harvest.honey_yield_ml} ml</p>
+                    <p className="text-sm font-bold text-stone-400">{harvest.propolis_yield_g}g Propolis</p>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="rounded-[1.75rem] border border-dashed border-stone-300 bg-white/70 p-8 text-center text-sm text-stone-500">
+              <div className="rounded-[2.5rem] border-2 border-dashed border-stone-200 p-12 text-center text-xl font-bold text-stone-400">
                 ยังไม่มีข้อมูลผลผลิต
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </section>
 
+      {/* Forms Refined for Mobile */}
       <Dialog open={showLogForm} onOpenChange={setShowLogForm}>
-        <DialogContent aria-describedby={undefined}>
+        <DialogContent className="rounded-[2.5rem] p-8">
           <DialogHeader>
-            <DialogDescription>บันทึกผลผลิตล่าสุดของรังนี้</DialogDescription>
-            <DialogTitle>บันทึกผลผลิต</DialogTitle>
+            <DialogTitle className="text-3xl font-black">บันทึกผลผลิต</DialogTitle>
           </DialogHeader>
-
-          <form onSubmit={handleLogSubmit} className="space-y-4" data-testid="harvest-form">
-            <div className="grid gap-4 sm:grid-cols-2">
+          <form onSubmit={handleLogSubmit} className="space-y-6 mt-4">
+            <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-stone-700">น้ำผึ้ง (มล.)</label>
-                <Input
-                  data-testid="harvest-honey"
-                  type="number"
-                  step="0.1"
-                  value={newLog.honey_yield_ml}
-                  onChange={(event) => setNewLog({ ...newLog, honey_yield_ml: Number(event.target.value) || 0 })}
-                  required
-                />
+                <label className="text-sm font-black uppercase text-stone-500 ml-1">น้ำผึ้ง (ml)</label>
+                <Input className="h-14 rounded-2xl text-xl font-bold bg-stone-50 border-none" type="number" step="0.1" value={newLog.honey_yield_ml} onChange={(e) => setNewLog({ ...newLog, honey_yield_ml: Number(e.target.value) || 0 })} required />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-stone-700">โพรโพลิส (กรัม)</label>
-                <Input
-                  data-testid="harvest-propolis"
-                  type="number"
-                  step="0.1"
-                  value={newLog.propolis_yield_g}
-                  onChange={(event) => setNewLog({ ...newLog, propolis_yield_g: Number(event.target.value) || 0 })}
-                  required
-                />
+                <label className="text-sm font-black uppercase text-stone-500 ml-1">โพรโพลิส (g)</label>
+                <Input className="h-14 rounded-2xl text-xl font-bold bg-stone-50 border-none" type="number" step="0.1" value={newLog.propolis_yield_g} onChange={(e) => setNewLog({ ...newLog, propolis_yield_g: Number(e.target.value) || 0 })} required />
               </div>
             </div>
-
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setShowLogForm(false)}>
-                ยกเลิก
-              </Button>
-              <Button type="submit" data-testid="submit-harvest">
-                บันทึก
-              </Button>
+            <DialogFooter className="flex gap-3">
+              <Button type="button" variant="ghost" className="h-14 flex-1 rounded-2xl font-bold" onClick={() => setShowLogForm(false)}>ยกเลิก</Button>
+              <Button type="submit" className="h-14 flex-1 rounded-2xl bg-stone-900 text-lg font-black">บันทึก</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
       <Dialog open={showNoteForm} onOpenChange={setShowNoteForm}>
-        <DialogContent aria-describedby={undefined}>
+        <DialogContent className="rounded-[2.5rem] p-8">
           <DialogHeader>
-            <DialogDescription>เพิ่มบันทึกสถานะรัง หมายเหตุ และรูปภาพประกอบ</DialogDescription>
-            <DialogTitle>บันทึกการตรวจ</DialogTitle>
+            <DialogTitle className="text-3xl font-black">บันทึกการตรวจ</DialogTitle>
           </DialogHeader>
-
-          <form onSubmit={handleNoteSubmit} className="space-y-4" data-testid="inspection-form">
+          <form onSubmit={handleNoteSubmit} className="space-y-6 mt-4">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-stone-700">สถานะรัง</label>
-              <select
-                data-testid="inspection-status"
-                className="flex h-11 w-full rounded-2xl border border-[hsl(var(--input))] bg-white/90 px-4 py-2 text-sm text-stone-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
-                value={newNote.status}
-                onChange={(event) => setNewNote({ ...newNote, status: event.target.value })}
-              >
+              <label className="text-sm font-black uppercase text-stone-500 ml-1">สถานะรัง</label>
+              <select className="flex h-14 w-full rounded-2xl bg-stone-50 px-4 py-2 text-xl font-bold border-none" value={newNote.status} onChange={(e) => setNewNote({ ...newNote, status: e.target.value })}>
                 <option value="">คงสถานะเดิม</option>
                 <option value="Strong">แข็งแรง</option>
                 <option value="Normal">ปกติ</option>
@@ -315,36 +287,17 @@ export default function HiveDetail() {
                 <option value="Empty">ว่าง</option>
               </select>
             </div>
-
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-stone-700">บันทึก</label>
-              <Textarea
-                data-testid="inspection-notes"
-                value={newNote.notes}
-                onChange={(event) => setNewNote({ ...newNote, notes: event.target.value })}
-                placeholder="บันทึกสภาพรัง"
-                required
-              />
+              <label className="text-sm font-black uppercase text-stone-500 ml-1">บันทึกเพิ่มเติม</label>
+              <Textarea className="rounded-2xl text-lg font-medium bg-stone-50 border-none min-h-[120px]" value={newNote.notes} onChange={(e) => setNewNote({ ...newNote, notes: e.target.value })} required />
             </div>
-
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-stone-700">รูปภาพ</label>
-              <Input
-                data-testid="inspection-image"
-                type="file"
-                accept="image/*"
-                onChange={(event) => setNewNote({ ...newNote, image: event.target.files?.[0] ?? null })}
-              />
+              <label className="text-sm font-black uppercase text-stone-500 ml-1">รูปภาพประกอบ</label>
+              <Input className="h-14 rounded-2xl pt-3 bg-stone-50 border-none" type="file" accept="image/*" onChange={(e) => setNewNote({ ...newNote, image: e.target.files?.[0] ?? null })} />
             </div>
-
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setShowNoteForm(false)}>
-                ยกเลิก
-              </Button>
-              <Button type="submit" data-testid="submit-inspection">
-                <Camera className="h-4 w-4" />
-                บันทึกการตรวจ
-              </Button>
+            <DialogFooter className="flex gap-3">
+              <Button type="button" variant="ghost" className="h-14 flex-1 rounded-2xl font-bold" onClick={() => setShowNoteForm(false)}>ยกเลิก</Button>
+              <Button type="submit" className="h-14 flex-1 rounded-2xl bg-stone-900 text-lg font-black"><Camera className="mr-2 h-5 w-5" />บันทึก</Button>
             </DialogFooter>
           </form>
         </DialogContent>

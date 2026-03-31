@@ -1,75 +1,78 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { Bug, LayoutDashboard, LogOut, QrCode } from "lucide-react";
+import { Bug, LayoutDashboard, LogOut, QrCode, Users } from "lucide-react";
 
 import logo from "@/assets/logo2.png";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { authService } from "@/services/api";
-
-const navItems = [
-  { to: "/", label: "ภาพรวม", icon: LayoutDashboard },
-  { to: "/hives", label: "รังผึ้ง", icon: Bug },
-  { to: "/print-qr", label: "ป้าย QR", icon: QrCode },
-];
+import { authService, authStorage } from "@/services/api";
 
 export default function AppShell() {
   const navigate = useNavigate();
+  const userRole = authStorage.getUserRole();
 
   const handleLogout = async () => {
     await authService.logout();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   };
 
+  const navItems = [
+    { to: "/dashboard", label: "ภาพรวม", icon: LayoutDashboard },
+    { to: "/hives", label: "รังผึ้ง", icon: Bug },
+    { to: "/print-qr", label: "ป้าย QR", icon: QrCode },
+  ];
+
+  if (userRole === "admin") {
+    navItems.push({ to: "/users", label: "สมาชิก", icon: Users });
+  }
+
   return (
-    <div className="min-h-screen pb-20 md:pb-0">
-      <header className="sticky top-0 z-40 border-b border-white/50 bg-[linear-gradient(180deg,rgba(255,251,235,0.96),rgba(255,251,235,0.82))] backdrop-blur-xl print:hidden">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 md:px-6 md:py-3">
+    <div className="min-h-screen pb-24 md:pb-0 bg-[#fafaf9]">
+      <header className="sticky top-0 z-[60] border-b border-stone-200 bg-white/90 backdrop-blur-xl print:hidden">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:px-8 md:py-4">
           <Link
             to="/"
-            className="flex items-center rounded-full px-1 py-1 transition hover:bg-white/20 md:bg-white/85 md:px-2 md:py-2 md:shadow-sm md:hover:bg-white"
+            className="flex items-center gap-2"
           >
-            <img src={logo} alt="โลโก้ MetaFarm" className="h-12 w-auto md:h-12" />
+            <img src={logo} alt="MetaFarm" className="h-10 w-auto md:h-12" />
+            <span className="hidden text-xl font-black tracking-tighter text-stone-800 sm:block">MetaFarm</span>
           </Link>
 
-          <Button
-            type="button"
-            variant="ghost"
-            className="rounded-full px-3 md:hidden"
-            onClick={handleLogout}
-            data-testid="logout-button-mobile"
-          >
-            <LogOut className="h-4 w-4" />
-            ออกจากระบบ
-          </Button>
-
-          <nav className="hidden items-center gap-2 md:flex">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  cn(
-                    "rounded-full px-4 py-2 text-sm font-semibold text-stone-600 transition",
-                    isActive ? "bg-stone-900 text-white shadow-sm" : "hover:bg-white/80 hover:text-stone-900"
-                  )
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
-            <Button type="button" variant="ghost" className="rounded-full px-4" onClick={handleLogout} data-testid="logout-button">
-              <LogOut className="h-4 w-4" />
-              ออกจากระบบ
+          <div className="flex items-center gap-2">
+            <nav className="hidden items-center gap-1 md:flex">
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    cn(
+                      "rounded-full px-5 py-2.5 text-base font-bold transition",
+                      isActive ? "bg-stone-900 text-white" : "text-stone-500 hover:bg-stone-100"
+                    )
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+            
+            <Button 
+              variant="ghost" 
+              className="h-11 rounded-2xl px-4 font-bold text-red-500 hover:bg-red-50 hover:text-red-600" 
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              <span className="hidden md:inline">ออกจากระบบ</span>
             </Button>
-          </nav>
+          </div>
         </div>
       </header>
 
-      <main>
+      <main className="mx-auto max-w-7xl">
         <Outlet />
       </main>
 
-      <nav className="fixed inset-x-0 bottom-3 z-50 mx-auto flex w-[calc(100%-1rem)] max-w-sm items-center justify-around rounded-[1.75rem] border border-white/70 bg-[rgba(255,252,247,0.92)] p-2 shadow-[0_20px_45px_-28px_rgba(41,37,36,0.38)] backdrop-blur-xl print:hidden md:hidden">
+      {/* Modern Bottom Nav for PWA */}
+      <nav className="fixed inset-x-0 bottom-4 z-50 mx-auto flex w-[calc(100%-2rem)] max-w-lg items-center justify-around rounded-[2.5rem] border border-stone-200 bg-white/95 p-3 shadow-2xl shadow-stone-300/50 backdrop-blur-xl print:hidden md:hidden">
         {navItems.map((item) => {
           const Icon = item.icon;
 
@@ -79,15 +82,15 @@ export default function AppShell() {
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  "flex min-w-[82px] flex-col items-center gap-1 rounded-[1.25rem] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-500 transition duration-200",
+                  "flex flex-1 flex-col items-center gap-1.5 rounded-3xl py-3 transition-all duration-300",
                   isActive
-                    ? "bg-[linear-gradient(180deg,#f59e0b,#f59e0b)] text-white shadow-[0_16px_24px_-18px_rgba(245,158,11,0.9)]"
-                    : "hover:bg-amber-50/80 hover:text-stone-700"
+                    ? "bg-amber-500 text-white shadow-lg shadow-amber-200 scale-105"
+                    : "text-stone-400 active:bg-stone-50 active:scale-95"
                 )
               }
             >
-              <Icon className="h-[15px] w-[15px]" />
-              <span>{item.label}</span>
+              <Icon className="h-6 w-6" />
+              <span className="text-[11px] font-black uppercase tracking-wider">{item.label}</span>
             </NavLink>
           );
         })}

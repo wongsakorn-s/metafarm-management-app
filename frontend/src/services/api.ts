@@ -216,6 +216,14 @@ export const inspectionService = {
 
 export const dashboardService = {
   getStats: () => api.get("/dashboard/stats"),
+  getPublicStats: () => axios.get(`${API_BASE_URL}/dashboard/public-stats`),
+};
+
+export const userService = {
+  getAll: () => api.get("/users/"),
+  create: (data: unknown) => api.post("/users/", data),
+  update: (id: number, data: unknown) => api.put(`/users/${id}`, data),
+  delete: (id: number) => api.delete(`/users/${id}`),
 };
 
 export const weatherService = {

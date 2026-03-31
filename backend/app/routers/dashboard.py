@@ -9,6 +9,21 @@ router = APIRouter(
     tags=["dashboard"]
 )
 
+@router.get("/public-stats")
+def get_public_stats(db: Session = Depends(database.get_db)):
+    """Public stats for landing page (No Auth)"""
+    total_hives = db.query(models.Hive).count()
+    total_yields = db.query(
+        func.sum(models.HarvestRecord.honey_yield_ml).label("total_honey"),
+        func.sum(models.HarvestRecord.propolis_yield_g).label("total_propolis")
+    ).first()
+    
+    return {
+        "total_hives": total_hives,
+        "total_honey_ml": total_yields.total_honey or 0,
+        "total_propolis_g": total_yields.total_propolis or 0,
+    }
+
 @router.get("/stats")
 def get_dashboard_stats(
     db: Session = Depends(database.get_db),

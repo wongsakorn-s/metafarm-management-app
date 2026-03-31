@@ -119,6 +119,21 @@ class AuthUser(BaseModel):
     username: str
     full_name: Optional[str] = None
     role: UserRole
+    is_active: bool = True
+    created_at: datetime
+    updated_at: datetime
+
+class UserCreate(BaseModel):
+    username: str = Field(min_length=3, max_length=100)
+    password: str = Field(min_length=8, max_length=200)
+    full_name: Optional[str] = None
+    role: UserRole = UserRole.OPERATOR
+
+class UserUpdate(BaseModel):
+    password: Optional[str] = Field(None, min_length=8, max_length=200)
+    full_name: Optional[str] = None
+    role: Optional[UserRole] = None
+    is_active: Optional[bool] = None
 
 
 
