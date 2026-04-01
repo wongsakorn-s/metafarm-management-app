@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Bug, Cloud, CloudSun, Droplets, Leaf, Wind } from "lucide-react";
+import { Bug, Cloud, Droplets, Leaf, Wind } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { dashboardService, weatherService } from "@/services/api";
