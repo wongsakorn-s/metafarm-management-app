@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trash2, UserPlus, Shield, User, ChevronRight } from "lucide-react";
+import { Trash2, UserPlus, Shield, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

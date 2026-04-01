@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
-  Droplets, Sprout, ArrowRight, ShieldCheck, QrCode, 
+  Droplets, Sprout, ArrowRight, QrCode, 
   BookOpen, Mail, Phone, ShoppingBag, GraduationCap, 
   ChevronRight, Facebook, Info, Menu, X
 } from "lucide-react";
