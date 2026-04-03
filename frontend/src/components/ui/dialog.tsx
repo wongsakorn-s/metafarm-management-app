@@ -36,7 +36,7 @@ const DialogContent = React.forwardRef<
         {...props}
         aria-describedby={describedBy}
         className={cn(
-          "fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-1.5rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 rounded-[2rem] border border-white/60 bg-[hsl(var(--card))]/95 p-6 shadow-[0_30px_80px_-32px_rgba(41,37,36,0.5)] duration-200",
+          "fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-1.5rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 rounded-[2rem] border border-amber-100/80 bg-[linear-gradient(180deg,rgba(255,252,245,0.98),rgba(255,255,255,0.98))] p-6 shadow-[0_30px_80px_-32px_rgba(41,37,36,0.5)] duration-200",
           className
         )}
       >

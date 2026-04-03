@@ -115,7 +115,7 @@ export default function UserManagement() {
             <div className="space-y-2">
               <label className="text-sm font-black uppercase tracking-widest text-stone-400 ml-1">ชื่อผู้ใช้งาน</label>
               <Input 
-                className="h-14 rounded-2xl text-lg font-bold bg-stone-50 border-none"
+                className="modal-field text-lg font-bold"
                 value={newUser.username} 
                 onChange={e => setNewUser({...newUser, username: e.target.value})} 
                 placeholder="staff_01"
@@ -125,7 +125,7 @@ export default function UserManagement() {
             <div className="space-y-2">
               <label className="text-sm font-black uppercase tracking-widest text-stone-400 ml-1">รหัสผ่าน</label>
               <Input 
-                className="h-14 rounded-2xl text-lg font-bold bg-stone-50 border-none"
+                className="modal-field text-lg font-bold"
                 type="password"
                 value={newUser.password} 
                 onChange={e => setNewUser({...newUser, password: e.target.value})} 
@@ -136,7 +136,7 @@ export default function UserManagement() {
             <div className="space-y-2">
               <label className="text-sm font-black uppercase tracking-widest text-stone-400 ml-1">สิทธิ์การใช้งาน</label>
               <select
-                className="flex h-14 w-full rounded-2xl bg-stone-50 px-4 py-2 text-lg font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="modal-select text-lg font-bold"
                 value={newUser.role}
                 onChange={e => setNewUser({...newUser, role: e.target.value})}
               >

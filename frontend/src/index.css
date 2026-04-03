@@ -76,6 +76,26 @@
     @apply border border-white/60 bg-white/75 backdrop-blur-xl shadow-[0_20px_60px_-24px_rgba(82,50,9,0.35)];
   }
 
+  .modal-field {
+    @apply h-14 rounded-2xl border border-stone-200 bg-white px-4 text-base font-semibold text-stone-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] placeholder:text-stone-400 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+  }
+
+  .modal-textarea {
+    @apply min-h-[120px] rounded-2xl border border-stone-200 bg-white px-4 py-3 text-base font-medium text-stone-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] placeholder:text-stone-400 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+  }
+
+  .modal-select {
+    @apply flex h-14 w-full appearance-none rounded-2xl border border-stone-200 bg-white px-4 py-2 text-base font-semibold text-stone-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-white;
+    background-image:
+      linear-gradient(45deg, transparent 50%, rgb(120 113 108) 50%),
+      linear-gradient(135deg, rgb(120 113 108) 50%, transparent 50%);
+    background-position:
+      calc(100% - 22px) calc(50% - 2px),
+      calc(100% - 16px) calc(50% - 2px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+  }
+
   .page-shell {
     @apply mx-auto w-full max-w-6xl px-4 pb-20 pt-4 md:px-6 md:pb-10 md:pt-8;
   }

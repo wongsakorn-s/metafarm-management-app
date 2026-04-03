@@ -31,10 +31,9 @@ export default function AppShell() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:px-8 md:py-4">
           <Link
             to="/"
-            className="flex items-center gap-2"
+            className="flex items-center"
           >
             <img src={logo} alt="MetaFarm" className="h-10 w-auto md:h-12" />
-            <span className="hidden text-xl font-black tracking-tighter text-stone-800 sm:block">MetaFarm</span>
           </Link>
 
           <div className="flex items-center gap-2">
