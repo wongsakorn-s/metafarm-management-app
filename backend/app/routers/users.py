@@ -51,6 +51,12 @@ def update_user(
     db_user = db.query(models.User).filter(models.User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
+
+    if user_id == current_user.id:
+        if user_update.role is not None and user_update.role != models.UserRole.ADMIN:
+            raise HTTPException(status_code=400, detail="Cannot change your own admin role")
+        if user_update.is_active is False:
+            raise HTTPException(status_code=400, detail="Cannot deactivate yourself")
     
     if user_update.password:
         db_user.password_hash = auth.hash_password(user_update.password)

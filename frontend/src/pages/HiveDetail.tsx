@@ -1,13 +1,7 @@
+import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  ArrowLeft,
-  Camera,
-  ClipboardList,
-  Droplets,
-  MapPin,
-  Sprout,
-} from "lucide-react";
+import { ArrowLeft, Camera, ClipboardList, Droplets, MapPin, Sprout } from "lucide-react";
 
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
@@ -43,14 +37,8 @@ interface Inspection {
 }
 
 function resolveInspectionImageUrl(imageUrl?: string): string | undefined {
-  if (!imageUrl) {
-    return undefined;
-  }
-
-  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-    return imageUrl;
-  }
-
+  if (!imageUrl) return undefined;
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) return imageUrl;
   return `${BASE_URL}${imageUrl}`;
 }
 
@@ -69,6 +57,10 @@ function formatDisplayTime(date: string) {
   });
 }
 
+function getErrorMessage(error: unknown, fallback: string) {
+  return axios.isAxiosError(error) ? error.response?.data?.detail || fallback : fallback;
+}
+
 export default function HiveDetail() {
   const { hive_id } = useParams<{ hive_id: string }>();
   const navigate = useNavigate();
@@ -78,19 +70,31 @@ export default function HiveDetail() {
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [newLog, setNewLog] = useState({ honey_yield_ml: 0, propolis_yield_g: 0 });
   const [newNote, setNewNote] = useState({ notes: "", status: "", image: null as File | null });
+  const [pageError, setPageError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSavingHarvest, setIsSavingHarvest] = useState(false);
+  const [isSavingInspection, setIsSavingInspection] = useState(false);
   const userRole = authStorage.getUserRole();
 
   const loadData = () => {
     if (!hive_id) return;
 
+    setIsLoading(true);
     hiveService
       .getById(hive_id)
       .then((response) => {
         setHive(response.data);
         return inspectionService.getByHive(response.data.id);
       })
-      .then((response) => setInspections(response.data))
-      .catch(() => navigate("/hives"));
+      .then((response) => {
+        setInspections(response.data);
+        setPageError("");
+      })
+      .catch((error: unknown) => {
+        setPageError(getErrorMessage(error, "โหลดข้อมูลรังไม่สำเร็จ"));
+      })
+      .finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
@@ -101,11 +105,19 @@ export default function HiveDetail() {
     event.preventDefault();
     if (!hive) return;
 
-    harvestService.create(hive.id, newLog).then(() => {
-      setShowLogForm(false);
-      setNewLog({ honey_yield_ml: 0, propolis_yield_g: 0 });
-      loadData();
-    });
+    setIsSavingHarvest(true);
+    setActionError("");
+    harvestService
+      .create(hive.id, newLog)
+      .then(() => {
+        setShowLogForm(false);
+        setNewLog({ honey_yield_ml: 0, propolis_yield_g: 0 });
+        loadData();
+      })
+      .catch((error: unknown) => {
+        setActionError(getErrorMessage(error, "บันทึกผลผลิตไม่สำเร็จ"));
+      })
+      .finally(() => setIsSavingHarvest(false));
   };
 
   const handleNoteSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -118,11 +130,19 @@ export default function HiveDetail() {
     if (newNote.status) formData.append("status", newNote.status);
     if (newNote.image) formData.append("image", newNote.image);
 
-    inspectionService.create(formData).then(() => {
-      setShowNoteForm(false);
-      setNewNote({ notes: "", status: "", image: null });
-      loadData();
-    });
+    setIsSavingInspection(true);
+    setActionError("");
+    inspectionService
+      .create(formData)
+      .then(() => {
+        setShowNoteForm(false);
+        setNewNote({ notes: "", status: "", image: null });
+        loadData();
+      })
+      .catch((error: unknown) => {
+        setActionError(getErrorMessage(error, "บันทึกการตรวจไม่สำเร็จ"));
+      })
+      .finally(() => setIsSavingInspection(false));
   };
 
   const totalHoney = useMemo(
@@ -135,13 +155,29 @@ export default function HiveDetail() {
     [hive]
   );
 
-  if (!hive) {
+  if (isLoading) {
     return (
       <div className="page-shell flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
           <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-amber-200 border-t-amber-500" />
           <p className="mt-6 text-lg font-black uppercase text-amber-700">กำลังโหลดข้อมูล</p>
         </div>
+      </div>
+    );
+  }
+
+  if (pageError || !hive) {
+    return (
+      <div className="page-shell space-y-4">
+        <Button variant="ghost" className="pl-0 text-lg font-bold hover:bg-transparent" onClick={() => navigate("/hives")}>
+          <ArrowLeft className="mr-2 h-5 w-5" />
+          กลับหน้ารายการ
+        </Button>
+        <Card className="rounded-[2rem] border border-red-200 bg-red-50 shadow-none">
+          <CardContent className="px-5 py-4 text-sm font-semibold text-red-700">
+            {pageError || "ไม่พบข้อมูลรัง"}
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -154,6 +190,12 @@ export default function HiveDetail() {
         <ArrowLeft className="mr-2 h-5 w-5" />
         กลับหน้ารายการ
       </Button>
+
+      {actionError ? (
+        <Card className="rounded-[2rem] border border-red-200 bg-red-50 shadow-none">
+          <CardContent className="px-5 py-4 text-sm font-semibold text-red-700">{actionError}</CardContent>
+        </Card>
+      ) : null}
 
       <section className="grid gap-6 lg:grid-cols-[1.18fr_0.82fr]">
         <Card className="overflow-hidden rounded-[2.5rem] border border-amber-100/70 bg-[linear-gradient(180deg,rgba(255,251,235,0.98),rgba(255,255,255,0.96))] shadow-2xl shadow-amber-100/40">
@@ -210,7 +252,7 @@ export default function HiveDetail() {
           </CardContent>
         </Card>
 
-        {canEdit && (
+        {canEdit ? (
           <Card className="overflow-hidden rounded-[2.5rem] border border-stone-200 bg-[linear-gradient(180deg,#fffdfa,#ffffff)] text-stone-900 shadow-2xl shadow-stone-200/40">
             <CardHeader className="p-8 pb-4 md:p-10 md:pb-4">
               <CardTitle className="text-3xl font-black text-amber-600">บันทึกข้อมูลรัง</CardTitle>
@@ -219,7 +261,10 @@ export default function HiveDetail() {
               <div className="rounded-[2rem] border border-amber-100 bg-[linear-gradient(180deg,#fff9ee,#fff5dd)] p-4 shadow-lg shadow-amber-100/30">
                 <Button
                   className="h-15 w-full justify-start rounded-2xl bg-white text-lg font-black text-amber-700 shadow-sm ring-1 ring-amber-100 hover:bg-amber-50"
-                  onClick={() => setShowLogForm(true)}
+                  onClick={() => {
+                    setShowLogForm(true);
+                    setActionError("");
+                  }}
                   data-testid="open-harvest-dialog"
                 >
                   <Droplets className="mr-3 h-6 w-6 text-blue-500" />
@@ -231,7 +276,10 @@ export default function HiveDetail() {
               <div className="rounded-[2rem] border border-lime-100 bg-[linear-gradient(180deg,#fbfeee,#f2f8df)] p-4 shadow-lg shadow-lime-100/30">
                 <Button
                   className="h-15 w-full justify-start rounded-2xl bg-white text-lg font-black text-lime-800 shadow-sm ring-1 ring-lime-100 hover:bg-lime-50"
-                  onClick={() => setShowNoteForm(true)}
+                  onClick={() => {
+                    setShowNoteForm(true);
+                    setActionError("");
+                  }}
                   data-testid="open-inspection-dialog"
                 >
                   <ClipboardList className="mr-3 h-6 w-6 text-lime-500" />
@@ -241,7 +289,7 @@ export default function HiveDetail() {
               </div>
             </CardContent>
           </Card>
-        )}
+        ) : null}
       </section>
 
       <section className="grid gap-8 lg:grid-cols-2">
@@ -255,7 +303,7 @@ export default function HiveDetail() {
             {inspections.length > 0 ? (
               inspections.map((inspection) => (
                 <article key={inspection.id} className="overflow-hidden rounded-[2.25rem] border border-stone-100 bg-white shadow-xl shadow-stone-200/35">
-                  {resolveInspectionImageUrl(inspection.image_url) && (
+                  {resolveInspectionImageUrl(inspection.image_url) ? (
                     <div className="aspect-video overflow-hidden bg-stone-100">
                       <img
                         src={resolveInspectionImageUrl(inspection.image_url)}
@@ -263,14 +311,14 @@ export default function HiveDetail() {
                         className="h-full w-full object-cover"
                       />
                     </div>
-                  )}
+                  ) : null}
                   <div className="space-y-4 p-7">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="text-lg font-black text-amber-700">{formatDisplayDate(inspection.inspection_date)}</p>
                         <p className="text-sm font-semibold text-stone-400">{formatDisplayTime(inspection.inspection_date)}</p>
                       </div>
-                      {inspection.hive_status && <StatusBadge status={inspection.hive_status} />}
+                      {inspection.hive_status ? <StatusBadge status={inspection.hive_status} /> : null}
                     </div>
                     <div className="rounded-[1.5rem] bg-stone-50 px-5 py-4">
                       <p className="text-lg leading-8 text-stone-600">{inspection.notes || "-"}</p>
@@ -303,9 +351,7 @@ export default function HiveDetail() {
                       </div>
                       <div>
                         <p className="text-xl font-black text-stone-900">{formatDisplayDate(harvest.harvest_date)}</p>
-                        <p className="text-sm font-bold uppercase text-stone-400">
-                          {formatDisplayTime(harvest.harvest_date)}
-                        </p>
+                        <p className="text-sm font-bold uppercase text-stone-400">{formatDisplayTime(harvest.harvest_date)}</p>
                       </div>
                     </div>
 
@@ -345,8 +391,9 @@ export default function HiveDetail() {
                   type="number"
                   step="0.1"
                   value={newLog.honey_yield_ml}
-                  onChange={(e) => setNewLog({ ...newLog, honey_yield_ml: Number(e.target.value) || 0 })}
+                  onChange={(event) => setNewLog({ ...newLog, honey_yield_ml: Number(event.target.value) || 0 })}
                   required
+                  data-testid="harvest-honey"
                 />
               </div>
               <div className="space-y-2">
@@ -356,8 +403,9 @@ export default function HiveDetail() {
                   type="number"
                   step="0.1"
                   value={newLog.propolis_yield_g}
-                  onChange={(e) => setNewLog({ ...newLog, propolis_yield_g: Number(e.target.value) || 0 })}
+                  onChange={(event) => setNewLog({ ...newLog, propolis_yield_g: Number(event.target.value) || 0 })}
                   required
+                  data-testid="harvest-propolis"
                 />
               </div>
             </div>
@@ -365,8 +413,13 @@ export default function HiveDetail() {
               <Button type="button" variant="ghost" className="h-14 flex-1 rounded-2xl font-bold" onClick={() => setShowLogForm(false)}>
                 ยกเลิก
               </Button>
-              <Button type="submit" className="h-14 flex-1 rounded-2xl bg-stone-900 text-lg font-black">
-                บันทึก
+              <Button
+                type="submit"
+                className="h-14 flex-1 rounded-2xl bg-stone-900 text-lg font-black"
+                data-testid="submit-harvest"
+                disabled={isSavingHarvest}
+              >
+                {isSavingHarvest ? "กำลังบันทึก..." : "บันทึก"}
               </Button>
             </DialogFooter>
           </form>
@@ -381,7 +434,12 @@ export default function HiveDetail() {
           <form onSubmit={handleNoteSubmit} className="mt-4 space-y-6">
             <div className="space-y-2">
               <label className="ml-1 text-sm font-black uppercase text-stone-500">สถานะรัง</label>
-              <select className="modal-select text-xl font-bold" value={newNote.status} onChange={(e) => setNewNote({ ...newNote, status: e.target.value })}>
+              <select
+                className="modal-select text-xl font-bold"
+                value={newNote.status}
+                onChange={(event) => setNewNote({ ...newNote, status: event.target.value })}
+                data-testid="inspection-status"
+              >
                 <option value="">คงสถานะเดิม</option>
                 <option value="Strong">แข็งแรง</option>
                 <option value="Normal">ปกติ</option>
@@ -394,8 +452,9 @@ export default function HiveDetail() {
               <Textarea
                 className="modal-textarea text-lg font-medium"
                 value={newNote.notes}
-                onChange={(e) => setNewNote({ ...newNote, notes: e.target.value })}
+                onChange={(event) => setNewNote({ ...newNote, notes: event.target.value })}
                 required
+                data-testid="inspection-notes"
               />
             </div>
             <div className="space-y-2">
@@ -404,16 +463,22 @@ export default function HiveDetail() {
                 className="modal-field pt-3"
                 type="file"
                 accept="image/*"
-                onChange={(e) => setNewNote({ ...newNote, image: e.target.files?.[0] ?? null })}
+                onChange={(event) => setNewNote({ ...newNote, image: event.target.files?.[0] ?? null })}
+                data-testid="inspection-image"
               />
             </div>
             <DialogFooter className="flex gap-3">
               <Button type="button" variant="ghost" className="h-14 flex-1 rounded-2xl font-bold" onClick={() => setShowNoteForm(false)}>
                 ยกเลิก
               </Button>
-              <Button type="submit" className="h-14 flex-1 rounded-2xl bg-stone-900 text-lg font-black">
+              <Button
+                type="submit"
+                className="h-14 flex-1 rounded-2xl bg-stone-900 text-lg font-black"
+                data-testid="submit-inspection"
+                disabled={isSavingInspection}
+              >
                 <Camera className="mr-2 h-5 w-5" />
-                บันทึก
+                {isSavingInspection ? "กำลังบันทึก..." : "บันทึก"}
               </Button>
             </DialogFooter>
           </form>

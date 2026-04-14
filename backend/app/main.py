@@ -40,6 +40,7 @@ settings.upload_dir.mkdir(parents=True, exist_ok=True)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    settings.validate_runtime_configuration()
     db = next(get_db())
     try:
         ensure_bootstrap_admin(db)

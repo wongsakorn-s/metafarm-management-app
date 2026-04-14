@@ -12,7 +12,7 @@ export default function AppShell() {
 
   const handleLogout = async () => {
     await authService.logout();
-    navigate("/", { replace: true });
+    navigate("/login", { replace: true });
   };
 
   const navItems = [
@@ -59,6 +59,7 @@ export default function AppShell() {
               variant="ghost"
               className="rounded-full border border-red-200 bg-white/80 px-4 py-4 text-sm font-bold text-red-500 shadow-sm transition hover:bg-red-50 hover:text-red-600 md:px-5 md:text-base"
               onClick={handleLogout}
+              data-testid="logout-button"
             >
               <LogOut className="mr-2 h-4 w-4" />
               <span className="hidden md:inline">ออกจากระบบ</span>

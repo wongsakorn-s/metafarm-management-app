@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Printer } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -14,12 +15,25 @@ interface HiveLabel {
   name?: string;
 }
 
+function getErrorMessage(error: unknown, fallback: string) {
+  return axios.isAxiosError(error) ? error.response?.data?.detail || fallback : fallback;
+}
+
 export default function QRPrint() {
   const [hives, setHives] = useState<HiveLabel[]>([]);
+  const [loadError, setLoadError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    hiveService.getAll().then((res) => setHives(res.data)).catch(console.error);
+    hiveService
+      .getAll()
+      .then((res) => {
+        setHives(res.data);
+        setLoadError("");
+      })
+      .catch((error: unknown) => {
+        setLoadError(getErrorMessage(error, "โหลดข้อมูลรังสำหรับสร้าง QR ไม่สำเร็จ"));
+      });
   }, []);
 
   return (
@@ -27,22 +41,26 @@ export default function QRPrint() {
       <section className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <Button variant="ghost" className="pl-0" onClick={() => navigate("/hives")}>
           <ArrowLeft className="h-4 w-4" />
-          กลับไปหน้ารัง
+          กลับไปรายการรัง
         </Button>
-        <Button onClick={() => window.print()}>
+        <Button onClick={() => window.print()} disabled={hives.length === 0}>
           <Printer className="h-4 w-4" />
           พิมพ์ป้าย
         </Button>
       </section>
+
+      {loadError ? (
+        <Card className="rounded-[2rem] border border-red-200 bg-red-50 shadow-none print:hidden">
+          <CardContent className="px-5 py-4 text-sm font-semibold text-red-700">{loadError}</CardContent>
+        </Card>
+      ) : null}
 
       <Card
         id="print-root"
         className="print-root print:mx-auto print:w-[190mm] print:border-0 print:bg-white print:shadow-none"
       >
         <CardHeader className="print:hidden">
-          <CardDescription className="text-xs font-semibold uppercase text-amber-700">
-            สถานี QR
-          </CardDescription>
+          <CardDescription className="text-xs font-semibold uppercase text-amber-700">สถานี QR</CardDescription>
           <CardTitle>ป้ายรหัสประจำรัง</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 print:space-y-0 print:p-0">
@@ -69,20 +87,20 @@ export default function QRPrint() {
                 <p className="mt-4 text-xl font-semibold uppercase text-stone-900 print:mt-1.5 print:text-[11px]">
                   {hive.hive_id}
                 </p>
-                {hive.name && (
+                {hive.name ? (
                   <p className="mt-1 text-sm text-stone-500 print:max-w-full print:text-[9px] print:leading-tight">
                     {hive.name}
                   </p>
-                )}
+                ) : null}
               </div>
             ))}
           </div>
 
-          {hives.length === 0 && (
+          {hives.length === 0 ? (
             <div className="rounded-[1.75rem] border border-dashed border-stone-300 bg-white/70 p-10 text-center text-sm text-stone-500">
               ไม่พบข้อมูลรังสำหรับสร้าง QR
             </div>
-          )}
+          ) : null}
 
           <div className="rounded-[1.75rem] bg-sky-50 p-6 text-sm text-sky-900 print:hidden">
             <p className="font-semibold">คำแนะนำการพิมพ์</p>

@@ -1,5 +1,7 @@
 import logging
 
+from app import auth, database, models
+
 
 def test_read_root(client):
     response = client.get("/")
@@ -153,6 +155,66 @@ def test_logging_records_http_errors(client, caplog):
     with caplog.at_level(logging.WARNING):
         response = client.get("/api/hives/UNKNOWN-HIVE")
 
-    assert response.status_code == 404
+    assert response.status_code == 401
     assert "http_error" in caplog.text
     assert "path=/api/hives/UNKNOWN-HIVE" in caplog.text
+
+
+def test_invalid_inspection_image_does_not_create_record(client, auth_headers, seeded_hive):
+    before_session = database.SessionLocal()
+    try:
+        before_count = before_session.query(models.InspectionRecord).count()
+    finally:
+        before_session.close()
+    response = client.post(
+        "/api/inspections/",
+        headers=auth_headers,
+        files={"image": ("invalid.txt", b"not-an-image", "text/plain")},
+        data={"hive_id_int": str(seeded_hive["id"]), "notes": "bad upload"},
+    )
+
+    after_session = database.SessionLocal()
+    try:
+        after_count = after_session.query(models.InspectionRecord).count()
+    finally:
+        after_session.close()
+
+    assert response.status_code == 400
+    assert after_count == before_count
+
+
+def test_viewer_can_read_hive_inspections(client, seeded_hive):
+    db = database.SessionLocal()
+    try:
+        viewer = models.User(
+            username="viewer_user",
+            password_hash=auth.hash_password("viewer_pass_2026"),
+            full_name="Viewer User",
+            role=models.UserRole.VIEWER,
+            is_active=True,
+        )
+        db.add(viewer)
+        db.flush()
+        db.add(
+            models.InspectionRecord(
+                hive_id=seeded_hive["id"],
+                notes="viewer-readable",
+                hive_status=models.HiveStatus.NORMAL,
+            )
+        )
+        db.commit()
+    finally:
+        db.close()
+
+    login_response = client.post(
+        "/api/auth/login",
+        json={"username": "viewer_user", "password": "viewer_pass_2026"},
+    )
+    access_token = login_response.json()["access_token"]
+    response = client.get(
+        f"/api/inspections/hive/{seeded_hive['id']}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()[0]["notes"] == "viewer-readable"

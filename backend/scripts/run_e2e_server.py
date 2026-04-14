@@ -14,7 +14,7 @@ sys.path.insert(0, str(BACKEND_DIR))
 
 os.environ.setdefault("APP_ENV", "e2e")
 os.environ.setdefault("DATABASE_URL", f"sqlite:///{E2E_DB_PATH.as_posix()}")
-os.environ.setdefault("CORS_ORIGINS", "http://127.0.0.1:4173")
+os.environ.setdefault("CORS_ORIGINS", "http://127.0.0.1:4174")
 os.environ.setdefault("ADMIN_USERNAME", "admin")
 os.environ.setdefault("ADMIN_PASSWORD", "metafarm_admin_2026")
 os.environ.setdefault("JWT_SECRET_KEY", "metafarm_e2e_secret_key_2026_very_secure")
@@ -22,6 +22,7 @@ os.environ.setdefault("JWT_ALGORITHM", "HS256")
 os.environ.setdefault("JWT_EXPIRE_MINUTES", "30")
 os.environ.setdefault("REFRESH_TOKEN_EXPIRE_DAYS", "7")
 os.environ.setdefault("LOG_LEVEL", "INFO")
+os.environ.setdefault("E2E_PORT", "8010")
 
 if E2E_DB_PATH.exists():
     E2E_DB_PATH.unlink()
@@ -52,4 +53,4 @@ finally:
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+    uvicorn.run(app, host="127.0.0.1", port=int(os.environ["E2E_PORT"]), log_level="info")

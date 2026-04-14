@@ -9,6 +9,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 REPO_DIR = BACKEND_DIR.parent
+INSECURE_ADMIN_PASSWORD = "changeme123"
+INSECURE_JWT_SECRET = "change_me_jwt_secret_key_with_at_least_32_bytes"
 
 
 def read_secret_file(path_value: str | None) -> str | None:
@@ -81,6 +83,10 @@ class Settings(BaseSettings):
     upload_dir: Path = BACKEND_DIR / "static" / "uploads"
 
     @property
+    def is_production_like(self) -> bool:
+        return self.app_env.lower() in {"production", "staging"}
+
+    @property
     def cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins_raw.split(",") if origin.strip()]
 
@@ -108,7 +114,7 @@ class Settings(BaseSettings):
 
     @property
     def admin_password(self) -> str:
-        return read_secret(self.admin_password_raw, self.admin_password_file, "changeme123") or "changeme123"
+        return read_secret(self.admin_password_raw, self.admin_password_file, INSECURE_ADMIN_PASSWORD) or INSECURE_ADMIN_PASSWORD
 
     @property
     def jwt_secret_key(self) -> str:
@@ -116,10 +122,24 @@ class Settings(BaseSettings):
             read_secret(
                 self.jwt_secret_key_raw,
                 self.jwt_secret_key_file,
-                "change_me_jwt_secret_key_with_at_least_32_bytes",
+                INSECURE_JWT_SECRET,
             )
-            or "change_me_jwt_secret_key_with_at_least_32_bytes"
+            or INSECURE_JWT_SECRET
         )
+
+    def validate_runtime_configuration(self) -> None:
+        if not self.is_production_like:
+            return
+
+        insecure_fields: list[str] = []
+        if self.admin_password == INSECURE_ADMIN_PASSWORD:
+            insecure_fields.append("ADMIN_PASSWORD")
+        if self.jwt_secret_key == INSECURE_JWT_SECRET:
+            insecure_fields.append("JWT_SECRET_KEY")
+
+        if insecure_fields:
+            joined = ", ".join(insecure_fields)
+            raise ValueError(f"Insecure default secrets are not allowed in {self.app_env}: {joined}")
 
 
 @lru_cache

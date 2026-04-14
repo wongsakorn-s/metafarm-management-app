@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { Bug, MapPin, Plus, QrCode, Search, Sprout, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +42,10 @@ const statusLabelMap: Record<string, string> = {
   Empty: "ว่าง",
 };
 
+function getErrorMessage(error: unknown, fallback: string) {
+  return axios.isAxiosError(error) ? error.response?.data?.detail || fallback : fallback;
+}
+
 export default function HiveList() {
   const navigate = useNavigate();
   const [hives, setHives] = useState<Hive[]>([]);
@@ -48,13 +53,22 @@ export default function HiveList() {
   const [showScanner, setShowScanner] = useState(false);
   const [query, setQuery] = useState("");
   const [newHive, setNewHive] = useState(initialHive);
+  const [loadError, setLoadError] = useState("");
+  const [formError, setFormError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const userRole = authStorage.getUserRole();
 
   const loadHives = () => {
     hiveService
       .getAll()
-      .then((res) => setHives(res.data))
-      .catch(console.error);
+      .then((res) => {
+        setHives(res.data);
+        setLoadError("");
+      })
+      .catch((error: unknown) => {
+        setLoadError(getErrorMessage(error, "โหลดข้อมูลรังไม่สำเร็จ"));
+      });
   };
 
   useEffect(() => {
@@ -63,6 +77,9 @@ export default function HiveList() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
+    setFormError("");
+
     hiveService
       .create(newHive)
       .then(() => {
@@ -70,14 +87,27 @@ export default function HiveList() {
         setNewHive(initialHive);
         loadHives();
       })
-      .catch((error) => alert(error.response?.data?.detail || "เกิดข้อผิดพลาดในการเพิ่มรัง"));
+      .catch((error: unknown) => {
+        setFormError(getErrorMessage(error, "บันทึกรังไม่สำเร็จ"));
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   const handleDelete = (id: string, event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    if (window.confirm("ลบรังนี้ใช่หรือไม่")) {
-      hiveService.delete(id).then(loadHives);
+    setLoadError("");
+    if (!window.confirm("ต้องการลบรังนี้ใช่หรือไม่")) {
+      return;
     }
+
+    setIsDeletingId(id);
+    hiveService
+      .delete(id)
+      .then(loadHives)
+      .catch((error: unknown) => {
+        setLoadError(getErrorMessage(error, "ลบรังไม่สำเร็จ"));
+      })
+      .finally(() => setIsDeletingId(null));
   };
 
   const filteredHives = useMemo(
@@ -106,9 +136,11 @@ export default function HiveList() {
                 <Bug className="h-4 w-4" />
                 Hive Management
               </div>
-              <h1 className="mt-5 text-4xl font-black leading-none text-stone-900 md:text-6xl">จัดการรังผึ้งชันโรง</h1>
+              <h1 className="mt-5 text-4xl font-black leading-none text-stone-900 md:text-6xl">
+                จัดการรังชันโรง
+              </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-stone-600 md:text-lg">
-                ดูรายการรังทั้งหมด ค้นหาได้เร็ว และเข้าไปจัดการรายละเอียดของแต่ละรังได้ทันที
+                ดูรายการรังทั้งหมด ค้นหาได้รวดเร็ว และเข้าไปดูรายละเอียดของแต่ละรังได้ทันที
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -116,7 +148,10 @@ export default function HiveList() {
                   <Button
                     size="lg"
                     className="h-14 rounded-2xl bg-amber-500 px-7 text-base font-black text-white shadow-lg shadow-amber-200 hover:bg-amber-600"
-                    onClick={() => setShowForm(true)}
+                    onClick={() => {
+                      setShowForm(true);
+                      setFormError("");
+                    }}
                     data-testid="open-add-hive-dialog"
                   >
                     <Plus className="mr-2 h-5 w-5" />
@@ -164,6 +199,12 @@ export default function HiveList() {
           </CardContent>
         </Card>
       </section>
+
+      {loadError ? (
+        <Card className="rounded-[2rem] border border-red-200 bg-red-50 shadow-none">
+          <CardContent className="px-5 py-4 text-sm font-semibold text-red-700">{loadError}</CardContent>
+        </Card>
+      ) : null}
 
       <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {filteredHives.map((hive) => (
@@ -225,6 +266,7 @@ export default function HiveList() {
                       size="icon"
                       className="h-11 w-11 rounded-2xl text-red-400 hover:bg-red-50 hover:text-red-600"
                       onClick={(event) => handleDelete(hive.hive_id, event)}
+                      disabled={isDeletingId === hive.hive_id}
                     >
                       <Trash2 className="h-5 w-5" />
                     </Button>
@@ -267,6 +309,7 @@ export default function HiveList() {
                   onChange={(event) => setNewHive({ ...newHive, hive_id: event.target.value })}
                   placeholder="HIVE-001"
                   required
+                  data-testid="add-hive-id"
                 />
               </div>
               <div className="space-y-2">
@@ -275,7 +318,31 @@ export default function HiveList() {
                   className="modal-field text-lg font-bold"
                   value={newHive.name}
                   onChange={(event) => setNewHive({ ...newHive, name: event.target.value })}
+                  data-testid="add-hive-name"
                   placeholder="สวนหน้าบ้าน"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="ml-1 text-sm font-black uppercase text-stone-500">สายพันธุ์</label>
+                <Input
+                  className="modal-field text-lg font-bold"
+                  value={newHive.species}
+                  onChange={(event) => setNewHive({ ...newHive, species: event.target.value })}
+                  placeholder="Tetragonula"
+                  data-testid="add-hive-species"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="ml-1 text-sm font-black uppercase text-stone-500">ตำแหน่ง</label>
+                <Input
+                  className="modal-field text-lg font-bold"
+                  value={newHive.location}
+                  onChange={(event) => setNewHive({ ...newHive, location: event.target.value })}
+                  placeholder="Zone A"
+                  data-testid="add-hive-location"
                 />
               </div>
             </div>
@@ -294,20 +361,31 @@ export default function HiveList() {
               </select>
             </div>
 
+            {formError ? (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                {formError}
+              </div>
+            ) : null}
+
             <DialogFooter className="flex gap-3 pt-4">
               <Button
                 type="button"
                 variant="ghost"
                 className="h-14 flex-1 rounded-2xl text-lg font-bold"
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                  setShowForm(false);
+                  setFormError("");
+                }}
               >
                 ยกเลิก
               </Button>
               <Button
                 type="submit"
                 className="h-14 flex-1 rounded-2xl bg-stone-900 text-lg font-black shadow-xl shadow-stone-200"
+                data-testid="submit-add-hive"
+                disabled={isSubmitting}
               >
-                บันทึกรัง
+                {isSubmitting ? "กำลังบันทึก..." : "บันทึกรัง"}
               </Button>
             </DialogFooter>
           </form>

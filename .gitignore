@@ -36,6 +36,9 @@ backend/.e2e.sqlite3
 backend/tests/test_suite.sqlite3
 frontend/playwright-report/
 frontend/test-results/
+frontend/.tools/
+frontend/vite.config.js
+frontend/vite.config.d.ts
 deploy/prod/secrets/*.txt
 deploy/prod/backups/*.sql
 deploy/prod/certs/**/*.pem

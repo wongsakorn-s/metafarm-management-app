@@ -29,38 +29,42 @@ def get_dashboard_stats(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(require_viewer),
 ):
-    # Total Hives
     total_hives = db.query(models.Hive).count()
-    
-    # Status Counts
     status_summary = db.query(
         models.Hive.status, func.count(models.Hive.status)
     ).group_by(models.Hive.status).all()
-    
+
     status_dict = {status.value: count for status, count in status_summary}
-    
-    # Total Yields
     total_yields = db.query(
         func.sum(models.HarvestRecord.honey_yield_ml).label("total_honey"),
         func.sum(models.HarvestRecord.propolis_yield_g).label("total_propolis")
     ).first()
-    
-    # Recent Harvests (Last 5)
-    recent_harvests = db.query(models.HarvestRecord).order_by(
-        models.HarvestRecord.harvest_date.desc()
-    ).limit(5).all()
-    
-    # Format recent harvests to include hive info
-    recent_list = []
-    for h in recent_harvests:
-        hive = db.query(models.Hive).filter(models.Hive.id == h.hive_id).first()
-        recent_list.append({
-            "id": h.id,
-            "hive_name": (hive.name if hive else h.hive_id) or h.hive_id,
-            "date": h.harvest_date,
-            "honey": h.honey_yield_ml,
-            "propolis": h.propolis_yield_g
-        })
+
+    recent_rows = (
+        db.query(
+            models.HarvestRecord.id,
+            models.HarvestRecord.harvest_date,
+            models.HarvestRecord.honey_yield_ml,
+            models.HarvestRecord.propolis_yield_g,
+            models.Hive.hive_id,
+            models.Hive.name,
+        )
+        .join(models.Hive, models.Hive.id == models.HarvestRecord.hive_id)
+        .order_by(models.HarvestRecord.harvest_date.desc())
+        .limit(5)
+        .all()
+    )
+
+    recent_list = [
+        {
+            "id": row.id,
+            "hive_name": row.name or row.hive_id,
+            "date": row.harvest_date,
+            "honey": row.honey_yield_ml,
+            "propolis": row.propolis_yield_g,
+        }
+        for row in recent_rows
+    ]
 
     return {
         "total_hives": total_hives,
