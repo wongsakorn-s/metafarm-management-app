@@ -140,7 +140,7 @@ export default function HiveDetail() {
       <div className="page-shell flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
           <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-amber-200 border-t-amber-500" />
-          <p className="mt-6 text-lg font-black uppercase tracking-[0.2em] text-amber-700">กำลังโหลดข้อมูล</p>
+          <p className="mt-6 text-lg font-black uppercase text-amber-700">กำลังโหลดข้อมูล</p>
         </div>
       </div>
     );
@@ -163,7 +163,7 @@ export default function HiveDetail() {
             <div className="relative">
               <div className="flex flex-wrap items-start justify-between gap-6">
                 <div className="space-y-3">
-                  <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">รหัสรัง</p>
+                  <p className="text-xs font-black uppercase text-amber-700">รหัสรัง</p>
                   <h1 className="text-5xl font-black leading-none text-stone-900 md:text-7xl">{hive.hive_id}</h1>
                   <p className="text-2xl font-bold text-stone-500 md:text-3xl">{hive.name || "ยังไม่ได้ตั้งชื่อรัง"}</p>
                 </div>
@@ -174,17 +174,17 @@ export default function HiveDetail() {
 
               <div className="mt-8 grid gap-4 sm:grid-cols-3">
                 <div className="rounded-[1.75rem] border border-amber-100 bg-[linear-gradient(180deg,#fff8e8,#fff1c9)] p-5 text-stone-900 shadow-lg shadow-amber-100/40">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">ผลผลิตน้ำผึ้ง</p>
+                  <p className="text-xs font-bold uppercase text-amber-700">ผลผลิตน้ำผึ้ง</p>
                   <p className="mt-3 text-3xl font-black">{totalHoney}</p>
                   <p className="mt-1 text-sm text-stone-600">มล. สะสม</p>
                 </div>
                 <div className="rounded-[1.75rem] border border-stone-100 bg-[linear-gradient(180deg,#ffffff,#f8f7f4)] p-5 text-stone-900 shadow-lg shadow-stone-200/30">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">โพรโพลิส</p>
+                  <p className="text-xs font-bold uppercase text-stone-500">โพรโพลิส</p>
                   <p className="mt-3 text-3xl font-black">{totalPropolis}</p>
                   <p className="mt-1 text-sm text-stone-500">กรัม สะสม</p>
                 </div>
                 <div className="rounded-[1.75rem] border border-lime-100 bg-[linear-gradient(180deg,#f8fde9,#eef8d2)] p-5 text-stone-900 shadow-lg shadow-lime-100/50">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-lime-800">บันทึกตรวจ</p>
+                  <p className="text-xs font-bold uppercase text-lime-800">บันทึกตรวจ</p>
                   <p className="mt-3 text-3xl font-black">{inspections.length}</p>
                   <p className="mt-1 text-sm text-stone-500">รายการล่าสุด</p>
                 </div>
@@ -192,14 +192,14 @@ export default function HiveDetail() {
 
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <div className="rounded-[2rem] border border-stone-100 bg-[linear-gradient(180deg,#ffffff,#fcfbf8)] p-6 shadow-lg shadow-stone-200/30">
-                  <div className="flex items-center gap-3 text-sm font-black uppercase tracking-wider text-stone-400">
+                  <div className="flex items-center gap-3 text-sm font-black uppercase text-stone-400">
                     <Sprout className="h-5 w-5 text-lime-600" />
                     สายพันธุ์
                   </div>
                   <p className="mt-4 text-2xl font-black leading-tight text-stone-800">{hive.species || "-"}</p>
                 </div>
                 <div className="rounded-[2rem] border border-stone-100 bg-[linear-gradient(180deg,#ffffff,#fcfbf8)] p-6 shadow-lg shadow-stone-200/30">
-                  <div className="flex items-center gap-3 text-sm font-black uppercase tracking-wider text-stone-400">
+                  <div className="flex items-center gap-3 text-sm font-black uppercase text-stone-400">
                     <MapPin className="h-5 w-5 text-orange-500" />
                     ตำแหน่ง
                   </div>
@@ -303,7 +303,7 @@ export default function HiveDetail() {
                       </div>
                       <div>
                         <p className="text-xl font-black text-stone-900">{formatDisplayDate(harvest.harvest_date)}</p>
-                        <p className="text-sm font-bold uppercase tracking-widest text-stone-400">
+                        <p className="text-sm font-bold uppercase text-stone-400">
                           {formatDisplayTime(harvest.harvest_date)}
                         </p>
                       </div>
@@ -311,11 +311,11 @@ export default function HiveDetail() {
 
                     <div className="grid min-w-[112px] gap-2 text-right">
                       <div className="rounded-2xl bg-[linear-gradient(180deg,#fff8e8,#fff1cf)] px-4 py-2">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">น้ำผึ้ง</p>
+                        <p className="text-xs font-bold uppercase text-amber-700">น้ำผึ้ง</p>
                         <p className="mt-1 text-xl font-black text-stone-900">{harvest.honey_yield_ml} ml</p>
                       </div>
                       <div className="rounded-2xl bg-[linear-gradient(180deg,#ffffff,#f7f6f2)] px-4 py-2">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">โพรโพลิส</p>
+                        <p className="text-xs font-bold uppercase text-stone-500">โพรโพลิส</p>
                         <p className="mt-1 text-lg font-black text-stone-900">{harvest.propolis_yield_g} g</p>
                       </div>
                     </div>

@@ -4,6 +4,7 @@ const runtimeBaseUrl = typeof window !== "undefined" ? window.location.origin : 
 export const BASE_URL = import.meta.env.VITE_API_URL || runtimeBaseUrl;
 const API_BASE_URL = `${BASE_URL}/api`;
 const ACCESS_TOKEN_KEY = "metafarm_access_token";
+const ACCESS_TOKEN_PERSIST_KEY = "metafarm_access_token_persist";
 const SERVER_WAKE_DELAY_MS = 1200;
 
 type AuthSession = {
@@ -72,11 +73,30 @@ const authClient = axios.create({
 });
 
 export const authStorage = {
-  getToken: () => window.localStorage.getItem(ACCESS_TOKEN_KEY),
-  setSession: (session: AuthSession) => window.localStorage.setItem(ACCESS_TOKEN_KEY, session.access_token),
-  clearSession: () => window.localStorage.removeItem(ACCESS_TOKEN_KEY),
+  getToken: () =>
+    window.localStorage.getItem(ACCESS_TOKEN_KEY) || window.sessionStorage.getItem(ACCESS_TOKEN_KEY),
+  setSession: (session: AuthSession, rememberMe = true) => {
+    window.localStorage.removeItem(ACCESS_TOKEN_KEY);
+    window.sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+    window.localStorage.removeItem(ACCESS_TOKEN_PERSIST_KEY);
+
+    if (rememberMe) {
+      window.localStorage.setItem(ACCESS_TOKEN_KEY, session.access_token);
+      window.localStorage.setItem(ACCESS_TOKEN_PERSIST_KEY, "true");
+      return;
+    }
+
+    window.sessionStorage.setItem(ACCESS_TOKEN_KEY, session.access_token);
+  },
+  shouldPersistSession: () => window.localStorage.getItem(ACCESS_TOKEN_PERSIST_KEY) === "true",
+  clearSession: () => {
+    window.localStorage.removeItem(ACCESS_TOKEN_KEY);
+    window.sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+    window.localStorage.removeItem(ACCESS_TOKEN_PERSIST_KEY);
+  },
   getUserRole: () => {
-    const token = window.localStorage.getItem(ACCESS_TOKEN_KEY);
+    const token =
+      window.localStorage.getItem(ACCESS_TOKEN_KEY) || window.sessionStorage.getItem(ACCESS_TOKEN_KEY);
     if (!token) return null;
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -109,7 +129,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
     refreshPromise = authClient
       .post<AuthSession>("/auth/refresh")
       .then((response) => {
-        authStorage.setSession(response.data);
+        authStorage.setSession(response.data, authStorage.shouldPersistSession());
         return response.data.access_token;
       })
       .catch(() => {
@@ -177,9 +197,9 @@ authClient.interceptors.response.use(
 );
 
 export const authService = {
-  login: async (username: string, password: string) => {
+  login: async (username: string, password: string, rememberMe = true) => {
     const response = await authClient.post<AuthSession>("/auth/login", { username, password });
-    authStorage.setSession(response.data);
+    authStorage.setSession(response.data, rememberMe);
     return response;
   },
   me: () => api.get("/auth/me"),

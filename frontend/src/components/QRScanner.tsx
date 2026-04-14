@@ -27,7 +27,7 @@ export default function QRScanner({ onScan, onClose }: Props) {
       <div className="relative flex h-full flex-col">
         <div className="flex items-start justify-between px-4 pb-4 pt-5 md:px-6 md:pb-5 md:pt-6">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">สแกนเนอร์</p>
+            <p className="text-xs font-semibold uppercase text-amber-200">สแกนเนอร์</p>
             <h2 className="mt-2 text-2xl font-semibold md:text-3xl">สแกน QR ของรังผึ้ง</h2>
           </div>
           <Button

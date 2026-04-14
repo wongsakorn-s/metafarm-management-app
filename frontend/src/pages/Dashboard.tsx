@@ -173,7 +173,7 @@ export default function Dashboard() {
         <Card className="overflow-hidden border-amber-200 bg-[linear-gradient(180deg,rgba(161,98,7,0.96),rgba(180,83,9,0.92),rgba(120,53,15,0.92))] text-white shadow-2xl shadow-amber-900/20">
           <CardContent className="relative flex min-h-[340px] flex-col p-6 md:min-h-[420px] md:p-10">
             <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-[linear-gradient(180deg,rgba(255,255,255,0.1),transparent)]" />
-            <h1 className="relative max-w-[15ch] text-[2rem] font-black leading-[1.05] tracking-tight md:max-w-[10ch] md:text-7xl">
+            <h1 className="relative max-w-[15ch] text-[2rem] font-black leading-[1.05] md:max-w-[10ch] md:text-7xl">
               ภาพรวม<br/>ฟาร์มผึ้ง
             </h1>
 
@@ -187,7 +187,7 @@ export default function Dashboard() {
                     className={`rounded-[1.5rem] border border-white/10 bg-black/10 p-4 backdrop-blur-md md:rounded-[2rem] md:p-6 ${item.className}`}
                   >
                     <div className="flex items-center justify-between gap-3">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-50/90 md:text-xs">
+                      <span className="text-[11px] font-bold uppercase text-amber-50/90 md:text-xs">
                         {item.label}
                       </span>
                       <div className="rounded-xl bg-white/10 p-2 text-amber-50/90">
@@ -213,7 +213,7 @@ export default function Dashboard() {
                 <div className={`rounded-[2rem] p-6 text-white md:p-8 ${weatherTheme.cardClassName}`}>
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-white/70">
+                      <p className="text-[12px] font-bold uppercase text-white/70">
                         {weather.location_name_th || weather.location_name || "พื้นที่ฟาร์ม"}
                       </p>
                       <p className="mt-3 text-2xl font-black md:text-4xl">{weather.description}</p>
@@ -225,7 +225,7 @@ export default function Dashboard() {
                     )}
                   </div>
                   <div className="mt-8">
-                    <p className="text-sm font-bold uppercase tracking-widest text-white/60">อุณหภูมิ</p>
+                    <p className="text-sm font-bold uppercase text-white/60">อุณหภูมิ</p>
                     <p className="mt-2 text-5xl font-black md:text-7xl">{Math.round(weather.temp_c)}°C</p>
                   </div>
                 </div>
@@ -237,7 +237,7 @@ export default function Dashboard() {
                     { label: "เมฆ", value: `${weather.cloudiness_pct?.toFixed(0)}%`, icon: Cloud, color: "text-stone-500" }
                   ].map((item, i) => (
                     <div key={i} className="rounded-[1.5rem] bg-stone-50 p-5 border border-stone-100">
-                      <div className="flex items-center gap-2 text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
+                      <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase text-stone-500">
                         <item.icon className={`h-4 w-4 ${item.color}`} />
                         {item.label}
                       </div>
@@ -266,7 +266,7 @@ export default function Dashboard() {
                 key={status}
                 className="flex items-center justify-between rounded-[1.75rem] bg-stone-50 p-5 border border-stone-100 transition-all hover:bg-white hover:shadow-lg"
               >
-                <p className="text-sm font-black uppercase tracking-widest text-stone-500">
+                <p className="text-sm font-black uppercase text-stone-500">
                   {translateStatus(status)}
                 </p>
                 <p className="text-3xl font-black text-stone-900">{count}</p>
@@ -288,7 +288,7 @@ export default function Dashboard() {
                 >
                   <div className="min-w-0">
                     <p className="truncate text-lg font-black text-stone-900">{harvest.hive_name}</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-wider text-stone-400">
+                    <p className="mt-1 text-xs font-bold uppercase text-stone-400">
                       {new Date(harvest.date).toLocaleDateString()}
                     </p>
                   </div>

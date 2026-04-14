@@ -26,26 +26,25 @@ export default function AppShell() {
   }
 
   return (
-    <div className="min-h-screen pb-24 md:pb-0 bg-[#fafaf9]">
-      <header className="sticky top-0 z-[60] border-b border-stone-200 bg-white/90 backdrop-blur-xl print:hidden">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:px-8 md:py-4">
-          <Link
-            to="/"
-            className="flex items-center"
-          >
-            <img src={logo} alt="MetaFarm" className="h-10 w-auto md:h-12" />
+    <div className="min-h-screen bg-[#fafaf9] pb-24 md:pb-0">
+      <header className="sticky top-0 z-[60] border-b border-stone-200/80 bg-[rgba(250,250,249,0.9)] backdrop-blur-2xl print:hidden">
+        <div className="mx-auto flex max-w-[88rem] items-center justify-between gap-4 px-5 py-2.5 md:px-8 md:py-3">
+          <Link to="/" className="flex items-center rounded-2xl transition-opacity hover:opacity-85">
+            <img src={logo} alt="MetaFarm" className="h-11 w-auto md:h-12" />
           </Link>
 
-          <div className="flex items-center gap-2">
-            <nav className="hidden items-center gap-1 md:flex">
+          <div className="hidden flex-1 items-center justify-center md:flex">
+            <nav className="flex items-center gap-1 rounded-full border border-stone-200 bg-white/90 p-1 shadow-lg shadow-stone-200/40">
               {navItems.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
                   className={({ isActive }) =>
                     cn(
-                      "rounded-full px-5 py-2.5 text-base font-bold transition",
-                      isActive ? "bg-stone-900 text-white" : "text-stone-500 hover:bg-stone-100"
+                      "rounded-full px-4 py-2 text-sm font-bold transition-all lg:text-base",
+                      isActive
+                        ? "bg-stone-900 text-white shadow-md shadow-stone-300/40"
+                        : "text-stone-500 hover:bg-stone-100 hover:text-stone-800"
                     )
                   }
                 >
@@ -53,10 +52,12 @@ export default function AppShell() {
                 </NavLink>
               ))}
             </nav>
-            
-            <Button 
-              variant="ghost" 
-              className="h-11 rounded-2xl px-4 font-bold text-red-500 hover:bg-red-50 hover:text-red-600" 
+          </div>
+
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              className="rounded-full border border-red-200 bg-white/80 px-4 py-4 text-sm font-bold text-red-500 shadow-sm transition hover:bg-red-50 hover:text-red-600 md:px-5 md:text-base"
               onClick={handleLogout}
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -66,12 +67,11 @@ export default function AppShell() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl">
+      <main className="mx-auto max-w-[88rem]">
         <Outlet />
       </main>
 
-      {/* Modern Bottom Nav for PWA */}
-      <nav className="fixed inset-x-0 bottom-4 z-50 mx-auto flex w-[calc(100%-2rem)] max-w-lg items-center justify-around rounded-[2.5rem] border border-stone-200 bg-white/95 p-3 shadow-2xl shadow-stone-300/50 backdrop-blur-xl print:hidden md:hidden">
+      <nav className="fixed inset-x-0 bottom-4 z-50 mx-auto flex w-[calc(100%-2rem)] max-w-md items-center justify-around rounded-[2.25rem] border border-stone-200 bg-white/95 p-2.5 shadow-2xl shadow-stone-300/50 backdrop-blur-xl print:hidden md:hidden">
         {navItems.map((item) => {
           const Icon = item.icon;
 
@@ -81,15 +81,15 @@ export default function AppShell() {
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-1 flex-col items-center gap-1.5 rounded-3xl py-3 transition-all duration-300",
+                  "flex flex-1 flex-col items-center gap-1 rounded-3xl py-2.5 transition-all duration-300",
                   isActive
                     ? "bg-amber-500 text-white shadow-lg shadow-amber-200 scale-105"
                     : "text-stone-400 active:bg-stone-50 active:scale-95"
                 )
               }
             >
-              <Icon className="h-6 w-6" />
-              <span className="text-[11px] font-black uppercase tracking-wider">{item.label}</span>
+              <Icon className="h-5 w-5" />
+              <span className="text-[11px] font-black">{item.label}</span>
             </NavLink>
           );
         })}

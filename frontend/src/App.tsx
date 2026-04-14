@@ -3,12 +3,12 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import AuthGuard from "@/components/auth-guard";
 import AppShell from "@/components/app-shell";
 import ServerWakingBanner from "@/components/server-waking-banner";
+import { publicRoutes } from "@/config/public-routes";
 import Dashboard from "@/pages/Dashboard";
 import HiveDetail from "@/pages/HiveDetail";
 import HiveList from "@/pages/HiveList";
 import Login from "@/pages/Login";
 import QRPrint from "@/pages/QRPrint";
-import Landing from "@/pages/Landing";
 import UserManagement from "@/pages/UserManagement";
 import { authStorage } from "@/services/api";
 
@@ -26,7 +26,9 @@ function App() {
       <ServerWakingBanner />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Landing />} />
+        {publicRoutes.map(({ path, component: Component }) => (
+          <Route key={path} path={path} element={<Component />} />
+        ))}
         <Route path="/login" element={<Login />} />
 
         {/* Protected Routes */}

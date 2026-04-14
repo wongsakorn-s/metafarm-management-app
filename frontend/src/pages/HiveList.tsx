@@ -102,7 +102,7 @@ export default function HiveList() {
           <CardContent className="relative p-7 md:p-9">
             <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-amber-200/30 blur-3xl" />
             <div className="relative">
-              <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-amber-800">
+              <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-2 text-xs font-bold uppercase text-amber-800">
                 <Bug className="h-4 w-4" />
                 Hive Management
               </div>
@@ -141,12 +141,12 @@ export default function HiveList() {
           <CardContent className="p-7 md:p-8">
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-[1.75rem] border border-amber-100 bg-[linear-gradient(180deg,#fff7e6,#ffefbf)] p-5 text-stone-900">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-800">รังทั้งหมด</p>
+                <p className="text-xs font-bold uppercase text-amber-800">รังทั้งหมด</p>
                 <p className="mt-3 text-4xl font-black">{hives.length}</p>
                 <p className="mt-2 text-sm text-stone-600">พร้อมใช้งานในระบบ</p>
               </div>
               <div className="rounded-[1.75rem] border border-lime-100 bg-[linear-gradient(180deg,#f7fde8,#edf8c9)] p-5 text-stone-900">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-lime-800">ต้องติดตาม</p>
+                <p className="text-xs font-bold uppercase text-lime-800">ต้องติดตาม</p>
                 <p className="mt-3 text-4xl font-black">{attentionCount}</p>
                 <p className="mt-2 text-sm text-stone-600">รังอ่อนแอหรือว่าง</p>
               </div>
@@ -176,7 +176,7 @@ export default function HiveList() {
               <div className="border-b border-stone-100 bg-[linear-gradient(180deg,rgba(255,251,235,0.85),rgba(255,255,255,0.96))] px-6 py-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-700">Hive ID</p>
+                    <p className="text-[11px] font-bold uppercase text-amber-700">Hive ID</p>
                     <h3 className="mt-2 truncate text-3xl font-black text-stone-900">{hive.hive_id}</h3>
                     <p className="mt-1 truncate text-base font-semibold text-stone-500">
                       {hive.name || "ยังไม่ได้ตั้งชื่อรัง"}
@@ -189,7 +189,7 @@ export default function HiveList() {
               <div className="space-y-4 px-6 py-5">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-[1.5rem] bg-stone-50 p-4">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-stone-400">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase text-stone-400">
                       <Sprout className="h-4 w-4 text-amber-600" />
                       สายพันธุ์
                     </div>
@@ -198,7 +198,7 @@ export default function HiveList() {
                     </p>
                   </div>
                   <div className="rounded-[1.5rem] bg-stone-50 p-4">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-stone-400">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase text-stone-400">
                       <MapPin className="h-4 w-4 text-lime-700" />
                       ตำแหน่ง
                     </div>
@@ -210,12 +210,12 @@ export default function HiveList() {
 
                 <div className="flex items-center justify-between rounded-[1.5rem] bg-amber-50 px-4 py-3">
                   <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-700">สถานะ</p>
+                    <p className="text-[11px] font-bold uppercase text-amber-700">สถานะ</p>
                     <p className="mt-1 text-sm font-semibold text-stone-700">
                       {statusLabelMap[hive.status] || hive.status}
                     </p>
                   </div>
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">รายละเอียด</p>
+                  <p className="text-xs font-bold uppercase text-stone-500">รายละเอียด</p>
                 </div>
 
                 {userRole === "admin" && (
@@ -260,7 +260,7 @@ export default function HiveList() {
           <form onSubmit={handleSubmit} className="mt-6 space-y-6" data-testid="add-hive-form">
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="ml-1 text-sm font-black uppercase tracking-widest text-stone-500">รหัสรัง</label>
+                <label className="ml-1 text-sm font-black uppercase text-stone-500">รหัสรัง</label>
                 <Input
                   className="modal-field text-lg font-bold"
                   value={newHive.hive_id}
@@ -270,7 +270,7 @@ export default function HiveList() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="ml-1 text-sm font-black uppercase tracking-widest text-stone-500">ชื่อรัง</label>
+                <label className="ml-1 text-sm font-black uppercase text-stone-500">ชื่อรัง</label>
                 <Input
                   className="modal-field text-lg font-bold"
                   value={newHive.name}
@@ -281,7 +281,7 @@ export default function HiveList() {
             </div>
 
             <div className="space-y-2">
-              <label className="ml-1 text-sm font-black uppercase tracking-widest text-stone-500">สถานะเริ่มต้น</label>
+              <label className="ml-1 text-sm font-black uppercase text-stone-500">สถานะเริ่มต้น</label>
               <select
                 className="modal-select text-lg font-bold"
                 value={newHive.status}

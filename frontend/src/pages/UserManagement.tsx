@@ -58,7 +58,7 @@ export default function UserManagement() {
     <div className="page-shell space-y-8 md:space-y-12 pb-10">
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between px-2">
         <div className="space-y-2">
-          <h1 className="text-5xl font-black tracking-tight text-stone-900 md:text-7xl">จัดการสมาชิก</h1>
+          <h1 className="text-5xl font-black text-stone-900 md:text-7xl">จัดการสมาชิก</h1>
           <p className="text-xl font-bold text-stone-500">ควบคุมสิทธิ์และบัญชีผู้ใช้งานพนักงาน</p>
         </div>
         <Button onClick={() => setShowForm(true)} className="h-16 rounded-[2rem] bg-amber-500 text-xl font-black px-8 shadow-xl shadow-amber-200 hover:bg-amber-600">
@@ -84,10 +84,10 @@ export default function UserManagement() {
               </div>
 
               <div className="mt-8 flex items-center justify-between">
-                 <div className={`rounded-2xl px-4 py-2 text-sm font-black uppercase tracking-widest ${user.role === 'admin' ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-stone-800 text-white'}`}>
+                 <div className={`rounded-2xl px-4 py-2 text-sm font-black uppercase ${user.role === 'admin' ? 'bg-amber-500 text-white shadow-lg shadow-amber-200' : 'bg-stone-800 text-white'}`}>
                     {user.role}
                  </div>
-                 <span className={`inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest ${user.is_active ? 'text-lime-600' : 'text-stone-400'}`}>
+                 <span className={`inline-flex items-center gap-2 text-sm font-black uppercase ${user.is_active ? 'text-lime-600' : 'text-stone-400'}`}>
                   <span className={`h-2.5 w-2.5 rounded-full ${user.is_active ? 'bg-lime-500' : 'bg-stone-300'}`} />
                   {user.is_active ? 'Active' : 'Inactive'}
                 </span>
@@ -113,7 +113,7 @@ export default function UserManagement() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest text-stone-400 ml-1">ชื่อผู้ใช้งาน</label>
+              <label className="ml-1 text-sm font-black uppercase text-stone-400">ชื่อผู้ใช้งาน</label>
               <Input 
                 className="modal-field text-lg font-bold"
                 value={newUser.username} 
@@ -123,7 +123,7 @@ export default function UserManagement() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest text-stone-400 ml-1">รหัสผ่าน</label>
+              <label className="ml-1 text-sm font-black uppercase text-stone-400">รหัสผ่าน</label>
               <Input 
                 className="modal-field text-lg font-bold"
                 type="password"
@@ -134,7 +134,7 @@ export default function UserManagement() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black uppercase tracking-widest text-stone-400 ml-1">สิทธิ์การใช้งาน</label>
+              <label className="ml-1 text-sm font-black uppercase text-stone-400">สิทธิ์การใช้งาน</label>
               <select
                 className="modal-select text-lg font-bold"
                 value={newUser.role}

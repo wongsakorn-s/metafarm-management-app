@@ -40,7 +40,7 @@ export default function QRPrint() {
         className="print-root print:mx-auto print:w-[190mm] print:border-0 print:bg-white print:shadow-none"
       >
         <CardHeader className="print:hidden">
-          <CardDescription className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-700">
+          <CardDescription className="text-xs font-semibold uppercase text-amber-700">
             สถานี QR
           </CardDescription>
           <CardTitle>ป้ายรหัสประจำรัง</CardTitle>
