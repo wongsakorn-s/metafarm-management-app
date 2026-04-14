@@ -41,7 +41,7 @@ export default function AppShell() {
                   to={item.to}
                   className={({ isActive }) =>
                     cn(
-                      "rounded-full px-4 py-2 text-sm font-bold transition-all lg:text-base",
+                      "rounded-full px-4 py-2 text-sm font-bold transition-all",
                       isActive
                         ? "bg-stone-900 text-white shadow-md shadow-stone-300/40"
                         : "text-stone-500 hover:bg-stone-100 hover:text-stone-800"
